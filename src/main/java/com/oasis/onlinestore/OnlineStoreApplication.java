@@ -1,8 +1,10 @@
 package com.oasis.onlinestore;
 
 import com.oasis.onlinestore.domain.*;
+import com.oasis.onlinestore.repository.CreditCardRepository;
 import com.oasis.onlinestore.repository.OrderRepository;
 import com.oasis.onlinestore.repository.UserRepository;
+import com.oasis.onlinestore.service.CreditCardService;
 import com.oasis.onlinestore.service.ItemService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,12 @@ public class OnlineStoreApplication implements CommandLineRunner {
 	@Autowired
 	ItemService itemService;
 
+	@Autowired
+	CreditCardService creditCardService;
+
+	@Autowired
+	CreditCardRepository creditCardRepository;
+
 	public static void main(String[] args) {
 		SpringApplication.run(OnlineStoreApplication.class, args);
 	}
@@ -30,24 +38,27 @@ public class OnlineStoreApplication implements CommandLineRunner {
 	@Transactional
 	@Override
 	public void run(String... args) throws Exception {
-
-//		testUserService();
-	}
-
-	private void testUser() {
 		Order o1 = new Order();
-		Order o2 = new Order();
+		//Order o2 = new Order();
 		List<Order> orders = new ArrayList<>();
 		orders.add(o1);
-		orders.add(o2);
+		//orders.add(o2);
 
-		o1.setStatus(Status.SHIPPED);
+		o1.setStatus(Status.NEW);
 		Address testAddress = new Address("123 Main St", "City", "State", AddressType.SHIPPING  );
 		User cust = new User("John", "Bob", "johnBob@gmail.com");
 		userRepository.save(cust);
 		o1.setShippingAddress(testAddress);
 		cust.setOrders(orders);
 		orderRepo.save(o1);
+
+		Order o2 = new Order();
+		orders.add(o2);
+		o2.setStatus(Status.SHIPPED);
+		o2.setShippingAddress(testAddress);
+		cust.setOrders(orders);
+		orderRepo.save(o2);
+
 
 
 
@@ -59,6 +70,9 @@ public class OnlineStoreApplication implements CommandLineRunner {
 			System.out.println(order);
 
 		}
+		testUserService();
+		testItemService();
+		testCreditCardValidation();
 	}
 
 	private void testUserService() {
@@ -89,5 +103,13 @@ public class OnlineStoreApplication implements CommandLineRunner {
 
 		List<Item> foundAllItems = itemService.findAll();
 		System.out.println(foundAllItems);
+	}
+
+	private void testCreditCardValidation(){
+		CreditCard cc = new CreditCard("6788678867886788", 2023, 06, "John D. Doe", "456");
+		creditCardService.saveCreditCard(cc);
+		for(CreditCard ccd : creditCardService.getAllCreditCards()){
+			System.out.println(ccd);
+		}
 	}
 }
