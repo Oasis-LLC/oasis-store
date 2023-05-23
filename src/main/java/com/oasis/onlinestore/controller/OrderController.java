@@ -113,4 +113,11 @@ public class OrderController {
         return new ResponseEntity<Order>(order, HttpStatus.OK);
     }
 
+    @PostMapping("/cancel")
+    public ResponseEntity cancelOrder(@PathVariable String orderId) {
+        UUID uuid = UUID.fromString(orderId);
+        orderService.cancelOrder(uuid);
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
 }

@@ -88,15 +88,7 @@ public class OrderService {
         }
     }
 
-    public void cancelOrder(UUID orderId){
-        Optional<Order> orderOpt = orderRepository.findById(orderId);
-        if(orderOpt.isPresent()){
-            Order order = orderOpt.get();
-            if(order.getStatus().equals(Status.PLACED)){
-                orderRepository.delete(order);
-            }
-        }
-    }
+
 
     public void checkoutOrder(UUID uuid) {
 
@@ -122,6 +114,22 @@ public class OrderService {
 
     // Helper methods
 
+    public void cancelOrder(UUID orderId) {
+        Optional<Order> order = orderRepository.findById(orderId);
+        if (order.isPresent()) {
+            Order existingOrder = order.get();
+            if (existingOrder.getStatus() == Status.PLACED) {
+                System.out.println("Cannot cancel the order as it is already placed.");
+            } else if (existingOrder.getStatus() == Status.NEW) {
+                existingOrder.setStatus(Status.CANCELLED);
+                //orderRepository.save(existingOrder);
+                System.out.println("Order has been successfully cancelled.");
+            }
+        } else {
+            System.out.println("Order not found with ID: " + orderId);
+        }
+
+    }
 
     private User getCurrentCustomer() {
         // Get user based on JWT token
@@ -142,4 +150,10 @@ public class OrderService {
         return newOrder;
     }
 
+
 }
+
+
+
+
+
