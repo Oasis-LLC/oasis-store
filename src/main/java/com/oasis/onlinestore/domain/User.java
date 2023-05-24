@@ -21,6 +21,18 @@ public class User {
 
     private String email;
 
+
+    private String password;
+
+
+
+    public User(String firstName, String lastName, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+    }
+
+
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinColumn(name = "customerId")
     private List<Address> addresses = new ArrayList<>();
@@ -33,7 +45,7 @@ public class User {
     private List<Order> orders = new ArrayList<>();
 
     @Enumerated
-    private Role role;
+    private Role role = Role.CUSTOMER;
 
 
 
@@ -43,11 +55,6 @@ public class User {
 
 
 
-    public User(String firstName, String lastName, String email) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-    }
 
 
     public Order getCurrentOrder() {

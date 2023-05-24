@@ -1,13 +1,17 @@
 package com.oasis.onlinestore.service;
 
+import com.oasis.onlinestore.contract.SimpleResponse;
 import com.oasis.onlinestore.domain.*;
 import com.oasis.onlinestore.repository.OrderRepository;
 import com.oasis.onlinestore.repository.UserRepository;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,13 +21,6 @@ import java.util.stream.Collectors;
 public class OrderService {
     @Autowired
     OrderRepository orderRepository;
-
-
-
-    public void createOrder(Order o){
-        orderRepository.save(o);
-    }
-
     @Autowired
     UserRepository userRepository;
 
@@ -44,51 +41,127 @@ public class OrderService {
 
     }
 
-    public Optional<OrderLine> addLineItem(UUID orderId, UUID itemId) {
+    public SimpleResponse addItemToOrder(UUID itemId) {
 
-        // Validate order, check status,
-        Optional<Order> orderOpt = orderRepository.findById(orderId);
-        if (orderOpt.isEmpty()) {
-            return Optional.empty();
+        Optional<Order> orderOptional = getCurrentOrder();
+        if (orderOptional.isEmpty()) {
+            return new SimpleResponse(false, "Cannot find order");
+        }
+        Order order = orderOptional.get();
+
+        if (!order.isEditable()) {
+            return new SimpleResponse(false, "Order is not editable");
         }
 
-        Order order = orderOpt.get();
         Optional<Item> itemOpt = itemService.findById(itemId);
         if (itemOpt.isEmpty()) {
-            return Optional.empty();
+            return new SimpleResponse(false, "No item found");
         }
 
         // Search item in order line
-        List<OrderLine> found = order.getLineItems()
+        List<OrderLine> found = order.getOrderLines()
                 .stream()
                 .filter(i -> i.getItem().getId().equals(itemId))
                 .toList();
 
-        OrderLine lineItem;
+        OrderLine orderLine;
 
         if (found.size() > 0) {
             // Increase order line qty
-            lineItem = found.get(0);
-            lineItem.increaseQuantity();
+            orderLine = found.get(0);
+            orderLine.increaseQuantity();
         } else {
             // create new line item
-             lineItem = new OrderLine(itemOpt.get());
-            order.addLineItem(lineItem);
+             orderLine = new OrderLine(itemOpt.get());
+            order.addLineItem(orderLine);
         }
         orderRepository.save(order);
-        return Optional.of(lineItem);
+        return new SimpleResponse(true, "Successfully added item to order", orderLine);
     }
 
-    public void removeLineItem(UUID orderId, UUID lineId) {
-        Optional<Order> orderOpt = orderRepository.findById(orderId);
-        if (orderOpt.isPresent()) {
-            Order order = orderOpt.get();
-            order.removeLineItem(lineId);
-            orderRepository.save(order);
+    public SimpleResponse removeItemFromOrder(UUID itemId) {
+
+        Optional<Order> orderOptional = getCurrentOrder();
+        if (orderOptional.isEmpty()) {
+            return new SimpleResponse(false, "Couldn't find order");
         }
+        Order order = orderOptional.get();
+
+        if (!order.isEditable()) {
+            return new SimpleResponse(false, "Couldn't update order");
+        }
+
+        Optional<Item> itemOpt = itemService.findById(itemId);
+        if (itemOpt.isEmpty()) {
+            return new SimpleResponse(false, "No item found");
+        }
+
+        // Search item in order line
+        List<OrderLine> found = order.getOrderLines()
+                .stream()
+                .filter(i -> i.getItem().getId().equals(itemId))
+                .toList();
+
+        if (found.size() == 0) {
+            return new SimpleResponse(false, "No item found");
+        }
+
+        OrderLine orderLine = found.get(0);
+
+        if (orderLine.getQuantity() > 1) {
+            // decrease order line qty
+            orderLine.decreaseQuantity();
+        } else {
+            // Remove from order
+            order.removeLineItem(orderLine);
+        }
+
+        orderRepository.save(order);
+        return new SimpleResponse(true, "Successfully removed from order");
     }
 
 
+
+
+    public void markOrderAsReturned(UUID orderId) {
+        // Fetch the order by ID from the database or any other data source
+        Optional<Order> orderOptional = orderRepository.findById(orderId);
+        if (orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            if (order.getStatus() == Status.DELIVERED) {
+                order.setStatus(Status.RETURNED);
+                orderRepository.save(order);
+            } else {
+                throw new IllegalStateException("Order must be delivered before it can be marked as returned");
+            }
+        }
+
+    }
+
+    // Helper methods
+    private User getCurrentCustomer() {
+        // Get user based on JWT token
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return userRepository.findByEmail(user.getUsername());
+    }
+
+    private Optional<Order> getCurrentOrder() {
+        // return new existing order or create new order
+        User customer = getCurrentCustomer();
+        if (customer == null) {
+            return Optional.empty();
+        }
+
+        Order newOrder = customer.getCurrentOrder();
+        if (newOrder == null) {
+            newOrder = new Order(customer, Status.NEW);
+            customer.addOrder(newOrder);
+            // save to userRepository
+            userRepository.save(customer);
+        }
+        return Optional.of(newOrder);
+    }
 
     public void checkoutOrder(UUID uuid) {
 
@@ -96,7 +169,7 @@ public class OrderService {
         if(orderOpt.isPresent()) {
             Order order = orderOpt.get();
 
-            List<OrderLine> lineItems = order.getLineItems()
+            List<OrderLine> lineItems = order.getOrderLines()
                     .stream()
                     .collect(Collectors.toList());
             if(order.getStatus() == Status.NEW) {
@@ -122,41 +195,14 @@ public class OrderService {
                 System.out.println("Cannot cancel the order as it is already placed.");
             } else if (existingOrder.getStatus() == Status.NEW) {
                 existingOrder.setStatus(Status.CANCELLED);
-                //orderRepository.delete(existingOrder);
+                //orderRepository.save(existingOrder);
                 System.out.println("Order has been successfully cancelled.");
             }
         } else {
             System.out.println("Order not found with ID: " + orderId);
         }
-
     }
-
-    public void returnOrder(UUID id){
-
-    }
-
-    private User getCurrentCustomer() {
-        // Get user based on JWT token
-        // Testing
-        return new User();
-    }
-
-    private Order getCurrentOrder() {
-        // return new existing order or create new order
-        User customer = getCurrentCustomer();
-        Order newOrder = customer.getCurrentOrder();
-        if (newOrder == null) {
-            newOrder = new Order(customer, Status.NEW);
-            customer.addOrder(newOrder);
-            // save to userRepository
-            userRepository.save(customer);
-        }
-        return newOrder;
-    }
-
-
 }
-
 
 
 

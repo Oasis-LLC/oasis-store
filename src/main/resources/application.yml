@@ -1,5 +1,10 @@
-
+secret: jwtSecretKey
 spring:
+  security:
+    user:
+      username: admin
+      password: password
+
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres

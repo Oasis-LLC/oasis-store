@@ -13,7 +13,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(name = "customer_id")
     private User customer;
 
@@ -23,21 +23,9 @@ public class Order {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "orderId")
-    private List<OrderLine> lineItems = new ArrayList<>();
+    private List<OrderLine> orderLines = new ArrayList<>();
     @Enumerated
     private Status status;
-
-    public boolean isEditable() {
-       return status == Status.NEW;
-    }
-
-    public void addLineItem(OrderLine lineItem) {
-        this.lineItems.add(lineItem);
-    }
-
-    public void removeLineItem(UUID uuid) {
-        lineItems = lineItems.stream().filter(x -> !x.getId().equals(uuid)).toList();
-    }
 
     public Order() {
     }
@@ -46,4 +34,28 @@ public class Order {
         this.customer = customer;
         this.status = status;
     }
+
+    public boolean isEditable() {
+        return status == Status.NEW;
+    }
+
+    public void addLineItem(OrderLine orderLine) {
+        this.orderLines.add(orderLine);
+    }
+
+    public void removeLineItem(OrderLine orderLine) {
+        int index = 0;
+        boolean found = false;
+        for (int i = 0; i < orderLines.size(); i++) {
+            if (orderLines.get(i).getId().equals( orderLine.getId())) {
+                index = i;
+                found = true;
+            }
+        }
+        if (found) {
+            orderLines.remove(index);
+        }
+    }
+
+
 }
