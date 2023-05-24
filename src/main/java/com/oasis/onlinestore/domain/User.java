@@ -43,7 +43,7 @@ public class User {
     private List<Order> orders = new ArrayList<>();
 
     @Enumerated
-    private Role role;
+    private Role role = Role.CUSTOMER;
 
     public Order getCurrentOrder() {
         List<Order> newList = orders.stream().filter(x-> x.getStatus() == Status.NEW).toList();

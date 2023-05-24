@@ -1,16 +1,11 @@
 package com.oasis.onlinestore.controller;
 
-import com.oasis.onlinestore.contract.UserResponse;
 import com.oasis.onlinestore.domain.User;
 import com.oasis.onlinestore.service.UserService;
-import com.oasis.onlinestore.service.security.JwtRequestModel;
 import com.oasis.onlinestore.service.security.JwtResponseModel;
-import com.oasis.onlinestore.service.security.JwtUserDetailsService;
 import com.oasis.onlinestore.service.security.TokenManager;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -35,8 +30,6 @@ public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
-    JwtUserDetailsService userDetailsService;
-    @Autowired
     PasswordEncoder passwordEncoder;
 
 
@@ -56,7 +49,7 @@ public class AuthController {
             e.printStackTrace();
         }
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        final UserDetails userDetails = userService.loadUserByUsername(user.getEmail());
         final String jwtToken = tokenManager.generateJwtToken(userDetails);
         return ResponseEntity.ok(new JwtResponseModel(jwtToken));
     }
@@ -73,7 +66,7 @@ public class AuthController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        final UserDetails userDetails = userService.loadUserByUsername(user.getEmail());
         final String jwtToken = tokenManager.generateJwtToken(userDetails);
         return ResponseEntity.ok(new JwtResponseModel(jwtToken));
     }
