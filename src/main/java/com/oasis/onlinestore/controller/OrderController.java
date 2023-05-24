@@ -60,19 +60,26 @@ public class OrderController {
         return new ResponseEntity<SimpleResponse>(res, HttpStatus.OK);
     }
 
-    @PostMapping("/checkout")
+    @PostMapping("/{orderId}/line/checkout")
     public ResponseEntity<?> checkoutOrder(@PathVariable String orderId) {
         UUID uuid = UUID.fromString(orderId);
         orderService.checkoutOrder(uuid);
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
-
-    @PostMapping("/cancel")
-    public ResponseEntity cancelOrder(@PathVariable String orderId) {
+    @PostMapping("/{orderId}/cancel")
+    public ResponseEntity<?> cancelOrder(@PathVariable String orderId) {
         UUID uuid = UUID.fromString(orderId);
         orderService.cancelOrder(uuid );
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
+    @PostMapping("/{orderId}/returned")
+    public ResponseEntity<?> markOrderAsReturned(@PathVariable String orderId) {
+
+        UUID uuid = UUID.fromString(orderId);
+        orderService.markOrderAsReturned(uuid);
+        return  new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
 }
 
 

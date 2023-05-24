@@ -27,6 +27,14 @@ public class Order {
     @Enumerated
     private Status status;
 
+    public Order() {
+    }
+
+    public Order(User customer, Status status) {
+        this.customer = customer;
+        this.status = status;
+    }
+
     public boolean isEditable() {
         return status == Status.NEW;
     }
@@ -49,11 +57,5 @@ public class Order {
         }
     }
 
-    public Order() {
-    }
 
-    public Order(User customer, Status status) {
-        this.customer = customer;
-        this.status = status;
-    }
 }

@@ -4,23 +4,29 @@ import com.oasis.onlinestore.contract.SimpleResponse;
 import com.oasis.onlinestore.domain.*;
 import com.oasis.onlinestore.repository.OrderRepository;
 import com.oasis.onlinestore.repository.UserRepository;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
     @Autowired
     OrderRepository orderRepository;
-
     @Autowired
     UserRepository userRepository;
 
     @Autowired
     ItemService itemService;
+
 
     public List<Order> getAllOrders(){
         return orderRepository.findAll();
@@ -114,26 +120,30 @@ public class OrderService {
         return new SimpleResponse(true, "Successfully removed from order");
     }
 
-    public void checkoutOrder(UUID uuid) {
-        /// TO-DO
 
-        // fetch the order with UUID
 
-        // Check the current state of order, if the state is not NEW, return
-        // validate credit card
 
-        // Do checkout here
-        // 1. change order state
-        // 2. save order
+    public void markOrderAsReturned(UUID orderId) {
+        // Fetch the order by ID from the database or any other data source
+        Optional<Order> orderOptional = orderRepository.findById(orderId);
+        if (orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            if (order.getStatus() == Status.DELIVERED) {
+                order.setStatus(Status.RETURNED);
+                orderRepository.save(order);
+            } else {
+                throw new IllegalStateException("Order must be delivered before it can be marked as returned");
+            }
+        }
+
     }
 
     // Helper methods
-
-
     private User getCurrentCustomer() {
         // Get user based on JWT token
-        // Testing
-        return userRepository.findByEmail("test@gmail.com");
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return userRepository.findByEmail(user.getUsername());
     }
 
     private Optional<Order> getCurrentOrder() {
@@ -152,6 +162,30 @@ public class OrderService {
         }
         return Optional.of(newOrder);
     }
+
+    public void checkoutOrder(UUID uuid) {
+
+        Optional<Order> orderOpt = orderRepository.findById(uuid);
+        if(orderOpt.isPresent()) {
+            Order order = orderOpt.get();
+
+            List<OrderLine> lineItems = order.getOrderLines()
+                    .stream()
+                    .collect(Collectors.toList());
+            if(order.getStatus() == Status.NEW) {
+                if(order.getShippingAddress() != null && lineItems.size() > 0){
+                    order.setStatus(Status.PLACED);
+                    orderRepository.save(order);
+                }
+            }
+
+
+        }
+
+
+
+    }
+
 
     public void cancelOrder(UUID orderId) {
         Optional<Order> order = orderRepository.findById(orderId);

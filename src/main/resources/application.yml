@@ -1,12 +1,17 @@
-
+secret: jwtSecretKey
 spring:
+  security:
+    user:
+      username: admin
+      password: password
+
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password:
+    password: password
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
     properties:
       hibernate:

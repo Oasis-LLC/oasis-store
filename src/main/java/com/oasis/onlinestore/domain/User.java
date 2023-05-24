@@ -21,13 +21,17 @@ public class User {
 
     private String email;
 
-    public User(){}
+
+    private String password;
+
+
 
     public User(String firstName, String lastName, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
     }
+
 
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinColumn(name = "customerId")
@@ -41,7 +45,17 @@ public class User {
     private List<Order> orders = new ArrayList<>();
 
     @Enumerated
-    private Role role;
+    private Role role = Role.CUSTOMER;
+
+
+
+    public User(){}
+
+
+
+
+
+
 
     public Order getCurrentOrder() {
         List<Order> newList = orders.stream().filter(x-> x.getStatus() == Status.NEW).toList();
@@ -62,7 +76,4 @@ public class User {
         this.role = role;
     }
 
-//    public List<Item> getNumberOfOrders() {
-//        return orders.stream().map(Order::getItems).flatMap(List::stream).toList();
-//    }
 }
