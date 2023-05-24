@@ -1,25 +1,29 @@
 package com.oasis.onlinestore.service;
 
+import com.oasis.onlinestore.domain.Address;
+import com.oasis.onlinestore.domain.AddressType;
 import com.oasis.onlinestore.domain.User;
+import com.oasis.onlinestore.repository.AddressRepository;
 import com.oasis.onlinestore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     public Page<User> findAll(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -39,6 +43,22 @@ public class UserService implements UserDetailsService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public List<Address> getShippingAddresses(){
+           User user = getCurrentCustomer();
+           List<Address> shippingAddresses = user.getAddresses().stream()
+                   .filter(i -> i.getAddressType().equals(AddressType.SHIPPING))
+                   .toList();
+           return shippingAddresses;
+    }
+
+    public void addAddress(Address address){
+        User user = getCurrentCustomer();
+        user.getAddresses().add(address);
+        addressRepository.save(address);
+        userRepository.save(user);
+
     }
 
     public boolean existsByEmail(String email) {
@@ -67,6 +87,13 @@ public class UserService implements UserDetailsService {
         } else {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
+    }
+
+    private User getCurrentCustomer() {
+        // Get user based on JWT token
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return userRepository.findByEmail(user.getUsername());
     }
 
     private Set<SimpleGrantedAuthority> getAuthority(com.oasis.onlinestore.domain.User user) {
