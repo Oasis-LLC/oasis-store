@@ -27,7 +27,6 @@ public class UserService implements UserDetailsService {
     @Autowired
     private AddressRepository addressRepository;
 
-
     public Page<User> findAll(Pageable pageable) {
         return userRepository.findAll(pageable);
     }
@@ -46,6 +45,22 @@ public class UserService implements UserDetailsService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public List<Address> getShippingAddresses(){
+           User user = getCurrentCustomer();
+           List<Address> shippingAddresses = user.getAddresses().stream()
+                   .filter(i -> i.getAddressType().equals(AddressType.SHIPPING))
+                   .toList();
+           return shippingAddresses;
+    }
+
+    public void addAddress(Address address){
+        User user = getCurrentCustomer();
+        user.getAddresses().add(address);
+        addressRepository.save(address);
+        userRepository.save(user);
+
     }
 
     public boolean existsByEmail(String email) {
@@ -111,6 +126,13 @@ public class UserService implements UserDetailsService {
         } else {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
+    }
+
+    private User getCurrentCustomer() {
+        // Get user based on JWT token
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return userRepository.findByEmail(user.getUsername());
     }
 
     private Set<SimpleGrantedAuthority> getAuthority(com.oasis.onlinestore.domain.User user) {

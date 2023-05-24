@@ -33,7 +33,7 @@ public class User {
     }
 
 
-    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "customerId")
     private List<Address> addresses = new ArrayList<>();
 

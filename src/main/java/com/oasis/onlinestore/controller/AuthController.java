@@ -1,6 +1,6 @@
 package com.oasis.onlinestore.controller;
 
-import com.oasis.onlinestore.domain.Address;
+import com.oasis.onlinestore.domain.Role;
 import com.oasis.onlinestore.domain.User;
 import com.oasis.onlinestore.service.UserService;
 import com.oasis.onlinestore.service.security.JwtResponseModel;
@@ -12,12 +12,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -42,6 +42,7 @@ public class AuthController {
         String origPassword = user.getPassword();
         // Encode password
         user.setPassword(passwordEncoder.encode(origPassword));
+        user.setRole(Role.CUSTOMER);
         User newUser = userService.save(user);
 
         try {
@@ -71,9 +72,6 @@ public class AuthController {
         final String jwtToken = tokenManager.generateJwtToken(userDetails);
         return ResponseEntity.ok(new JwtResponseModel(jwtToken));
     }
-
-
-
 
     private boolean userAlreadyExists(String email) {
         return userService.existsByEmail(email);

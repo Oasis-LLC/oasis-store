@@ -1,5 +1,7 @@
 package com.oasis.onlinestore.repository;
 
+public class OrderLineRepositoryTest {
+}
 import com.oasis.onlinestore.domain.Order;
 import com.oasis.onlinestore.domain.OrderLine;
 import org.junit.Test;
