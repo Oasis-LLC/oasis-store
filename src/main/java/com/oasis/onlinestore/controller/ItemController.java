@@ -1,9 +1,11 @@
 package com.oasis.onlinestore.controller;
 
+import com.oasis.onlinestore.contract.SimpleResponse;
 import com.oasis.onlinestore.domain.Item;
 import com.oasis.onlinestore.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,20 +27,18 @@ public class ItemController {
         return new ResponseEntity<List<Item>>(items, HttpStatus.OK);
     }
 
-    @PostMapping(consumes = { "application/json"})
-    ResponseEntity<?> saveItem(@RequestBody Item item) {
+    @PostMapping(consumes = {"multipart/form-data"})
+    ResponseEntity<?> saveItem(@RequestPart Item item,
+                               @RequestPart("image") MultipartFile file) {
         try {
-//            String imageContent = new String(image.getBytes(), StandardCharsets.UTF_8);
+            String content = new String(file.getBytes(), StandardCharsets.UTF_8);
+            item.setImage(content);
             service.save(item);
         } catch (Exception e) {
-            e.printStackTrace();
+            SimpleResponse res = new SimpleResponse(false, "Failed to create item");
+            return new ResponseEntity<SimpleResponse>(res, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<Item>(item, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/{uuid}/saveImage")
-    void saveImage(@PathVariable String path, MultipartFile file) throws Exception {
-        String content = new String(file.getBytes(), StandardCharsets.UTF_8);
-        service.setImage(path, content);
+        SimpleResponse res = new SimpleResponse(true, "Successfully create item");
+        return new ResponseEntity<SimpleResponse>(res, HttpStatus.CREATED);
     }
 }
