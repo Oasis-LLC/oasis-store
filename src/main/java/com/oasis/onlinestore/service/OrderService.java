@@ -4,23 +4,27 @@ import com.oasis.onlinestore.contract.SimpleResponse;
 import com.oasis.onlinestore.domain.*;
 import com.oasis.onlinestore.repository.OrderRepository;
 import com.oasis.onlinestore.repository.UserRepository;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
     @Autowired
     OrderRepository orderRepository;
-
     @Autowired
     UserRepository userRepository;
 
     @Autowired
     ItemService itemService;
+
 
     public List<Order> getAllOrders(){
         return orderRepository.findAll();
@@ -118,18 +122,65 @@ public class OrderService {
         /// TO-DO
 
         // fetch the order with UUID
+//        Optional<Order> orderOptional = getOrderById(uuid);
+//        if (orderOptional.isPresent()) {
+//            Order order = orderOptional.get();
+//            if (order.getStatus() != Status.NEW) {
+//                // If the order state is not NEW, return or throw an exception to indicate the invalid state
+//                return;
+//            }
+//
+//            // Validate credit card
+//            BindingResult bindingResult = new BeanPropertyBindingResult(order, "order");
+//            creditCardValidator.validate(order.getCustomer().getCreditCards(), bindingResult);
+//            if (bindingResult.hasErrors()) {
+//                // Handle validation errors, e.g., log errors, return an error response, or throw an exception
+//                return;
+//            }
+//
+//            // Do checkout here
+//
+//            // Update order state
+//            order.setStatus(Status.PLACED);
+//
+//            // Save the updated order
+//            orderRepository.save(order);
+//        }
 
-        // Check the current state of order, if the state is not NEW, return
-        // validate credit card
+        Optional<Order> orderOpt = orderRepository.findById(uuid);
+        if(orderOpt.isPresent()) {
+            Order order = orderOpt.get();
+            List<OrderLine> lineItems = order.getOrderLines()
+                    .stream()
+                    .collect(Collectors.toList());
+            if(order.getStatus() != Status.NEW) {
+                return;
+            }else if(order.getShippingAddress() == null || lineItems.size() == 0
+                    || order.getCustomer().getCreditCards().size() == 0){
+                return;
+            }else{
+                order.setStatus(Status.PLACED);
+                orderRepository.save(order);
+            }
+        }
 
-        // Do checkout here
-        // 1. change order state
-        // 2. save order
+    }
+    public void markOrderAsReturned(UUID orderId) {
+        // Fetch the order by ID from the database or any other data source
+        Optional<Order> orderOptional = orderRepository.findById(orderId);
+        if (orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            if (order.getStatus() == Status.DELIVERED) {
+                order.setStatus(Status.RETURNED);
+                orderRepository.save(order);
+            } else {
+                throw new IllegalStateException("Order must be delivered before it can be marked as returned");
+            }
+        }
+
     }
 
     // Helper methods
-
-
     private User getCurrentCustomer() {
         // Get user based on JWT token
         // Testing
