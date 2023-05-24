@@ -6,6 +6,8 @@ import com.oasis.onlinestore.repository.OrderRepository;
 import com.oasis.onlinestore.repository.UserRepository;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -183,8 +185,9 @@ public class OrderService {
     // Helper methods
     private User getCurrentCustomer() {
         // Get user based on JWT token
-        // Testing
-        return userRepository.findByEmail("test@gmail.com");
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return userRepository.findByEmail(user.getUsername());
     }
 
     private Optional<Order> getCurrentOrder() {
