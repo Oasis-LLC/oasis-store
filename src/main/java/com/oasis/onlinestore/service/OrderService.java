@@ -5,6 +5,8 @@ import com.oasis.onlinestore.domain.*;
 import com.oasis.onlinestore.repository.OrderRepository;
 import com.oasis.onlinestore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -132,8 +134,9 @@ public class OrderService {
 
     private User getCurrentCustomer() {
         // Get user based on JWT token
-        // Testing
-        return userRepository.findByEmail("test@gmail.com");
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return userRepository.findByEmail(user.getUsername());
     }
 
     private Optional<Order> getCurrentOrder() {
