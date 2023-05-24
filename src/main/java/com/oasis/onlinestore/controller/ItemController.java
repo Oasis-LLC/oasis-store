@@ -6,14 +6,11 @@ import com.oasis.onlinestore.service.ItemService;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.List;
 
 @RestController
@@ -41,7 +38,7 @@ public class ItemController {
             SimpleResponse res = new SimpleResponse(false, "Failed to create item");
             return new ResponseEntity<SimpleResponse>(res, HttpStatus.BAD_REQUEST);
         }
-        SimpleResponse res = new SimpleResponse(true, "Successfully create item");
+        SimpleResponse res = new SimpleResponse(true, "Successfully create item", item);
         return new ResponseEntity<SimpleResponse>(res, HttpStatus.CREATED);
     }
 }

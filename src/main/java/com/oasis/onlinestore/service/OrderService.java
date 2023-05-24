@@ -4,13 +4,9 @@ import com.oasis.onlinestore.contract.SimpleResponse;
 import com.oasis.onlinestore.domain.*;
 import com.oasis.onlinestore.repository.OrderRepository;
 import com.oasis.onlinestore.repository.UserRepository;
-import org.aspectj.weaver.ast.Or;
+import com.oasis.onlinestore.service.security.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +23,8 @@ public class OrderService {
     @Autowired
     ItemService itemService;
 
+    @Autowired
+    AuthUtil authUtil;
 
     public List<Order> getAllOrders(){
         return orderRepository.findAll();
@@ -139,16 +137,10 @@ public class OrderService {
     }
 
     // Helper methods
-    private User getCurrentCustomer() {
-        // Get user based on JWT token
-        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-                .getPrincipal();
-        return userRepository.findByEmail(user.getUsername());
-    }
 
     private Optional<Order> getCurrentOrder() {
         // return new existing order or create new order
-        User customer = getCurrentCustomer();
+        User customer = authUtil.getCurrentCustomer();
         if (customer == null) {
             return Optional.empty();
         }

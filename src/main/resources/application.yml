@@ -17,3 +17,4 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+payment-micro-url: http://localhost:9000

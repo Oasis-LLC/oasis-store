@@ -35,14 +35,10 @@ public class User {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "customerId")
-    private List<Address> addresses = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
-    @JoinColumn(name = "customerId")
-    private List<CreditCard> creditCards = new ArrayList<>();
+    private List<Address> addresses;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
-    private List<Order> orders = new ArrayList<>();
+    private List<Order> orders;
 
     @Enumerated
     private Role role = Role.CUSTOMER;

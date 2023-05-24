@@ -4,11 +4,14 @@ import com.oasis.onlinestore.domain.Address;
 import com.oasis.onlinestore.domain.AddressType;
 import com.oasis.onlinestore.domain.User;
 import com.oasis.onlinestore.repository.AddressRepository;
+import com.oasis.onlinestore.contract.CreditCardResponse;
+import com.oasis.onlinestore.integration.PaymentServiceClient;
 import com.oasis.onlinestore.repository.UserRepository;
+import com.oasis.onlinestore.service.security.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +29,11 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private AddressRepository addressRepository;
+    @Autowired
+    PaymentServiceClient paymentServiceClient;
+
+    @Autowired
+    AuthUtil authUtil;
 
     public Page<User> findAll(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -111,7 +119,20 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
 
     }
+    public void addCreditCard(CreditCardResponse card) {
+        User user = authUtil.getCurrentCustomer();
+        card.setUserId(user.getId());
+        Object obj = paymentServiceClient.addCard(card);
 
+        System.out.println(obj);
+    }
+
+    public List<CreditCardResponse> getCustomerCreditCard() {
+        String userId = authUtil.getCurrentCustomer().getId().toString();
+        ResponseEntity<List<CreditCardResponse>> obj = paymentServiceClient.getCreditCards(userId);
+        System.out.println(obj.getBody());
+        return obj.getBody();
+    }
 
     // Authentication ----
 

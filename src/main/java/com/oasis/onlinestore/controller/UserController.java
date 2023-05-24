@@ -10,6 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.oasis.onlinestore.contract.CreditCardResponse;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/users")
@@ -46,5 +51,16 @@ public class UserController {
     public ResponseEntity<?> addShippingAddress(@RequestBody Address address) {
         userService.addAddress(address);
         return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @GetMapping("/cards")
+    public  ResponseEntity<List<CreditCardResponse>> getCardList() {
+        List<CreditCardResponse> ccs = userService.getCustomerCreditCard();
+        return new ResponseEntity<List<CreditCardResponse>>(ccs, HttpStatus.OK);
+    }
+
+    @PostMapping("/cards")
+    public void addCard(@RequestBody CreditCardResponse creditCard) {
+        userService.addCreditCard(creditCard);
     }
 }
