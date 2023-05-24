@@ -23,7 +23,7 @@ public class Order {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "orderId")
-    private List<LineItem> lineItems = new ArrayList<>();
+    private List<OrderLine> lineItems = new ArrayList<>();
     @Enumerated
     private Status status;
 
@@ -31,7 +31,7 @@ public class Order {
        return status == Status.NEW;
     }
 
-    public void addLineItem(LineItem lineItem) {
+    public void addLineItem(OrderLine lineItem) {
         this.lineItems.add(lineItem);
     }
 

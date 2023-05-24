@@ -40,6 +40,9 @@ public class Item {
             inverseJoinColumns =  { @JoinColumn(name = "subItemId", referencedColumnName = "id")})
     private List<Item> items = new ArrayList<>(); // composite
 
+
+
+
     public Item(String name, String description, String image, String barcode, int quantity, double price) {
         this.name = name;
         this.description = description;

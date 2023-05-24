@@ -3,10 +3,12 @@ package com.oasis.onlinestore.controller;
 
 
 
+import com.oasis.onlinestore.contract.SimpleResponse;
 import com.oasis.onlinestore.domain.Item;
 import com.oasis.onlinestore.domain.LineItem;
 
 import com.oasis.onlinestore.domain.Order;
+import com.oasis.onlinestore.domain.OrderLine;
 import com.oasis.onlinestore.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -48,9 +50,11 @@ public class OrderController {
         try {
             orderService.createOrder(order);
         } catch (Exception e) {
-            e.printStackTrace();
+            SimpleResponse res = new SimpleResponse(false, "Failed to create order");
+            return new ResponseEntity<SimpleResponse>(res, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<Order>(order, HttpStatus.CREATED);
+        SimpleResponse res = new SimpleResponse(true, "Order successfully created");
+        return new ResponseEntity<SimpleResponse>(res, HttpStatus.CREATED);
     }
 
 
@@ -76,8 +80,8 @@ public class OrderController {
         UUID uuid = UUID.fromString(orderId);
         Optional<Order> order = orderService.getOrderById(uuid);
         if (order.isPresent()) {
-            List<LineItem> lineItems = order.get().getLineItems();
-            return new ResponseEntity<List<LineItem>>(lineItems, HttpStatus.OK);
+            List<OrderLine> lineItems = order.get().getLineItems();
+            return new ResponseEntity<List<OrderLine>>(lineItems, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
@@ -87,10 +91,10 @@ public class OrderController {
                                                 @RequestParam("itemId") String itemId) {
         UUID uuid = UUID.fromString(orderId);
         UUID itemUuid = UUID.fromString(itemId);
-        Optional<LineItem> lineItemOptional = orderService.addLineItem(uuid, itemUuid);
+        Optional<OrderLine> lineItemOptional = orderService.addLineItem(uuid, itemUuid);
 
         if (lineItemOptional.isPresent()) {
-            return new ResponseEntity<LineItem>(lineItemOptional.get(), HttpStatus.OK);
+            return new ResponseEntity<OrderLine>(lineItemOptional.get(), HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
@@ -107,14 +111,14 @@ public class OrderController {
     }
 
     @PostMapping("/{orderId}/line/checkout")
-    public ResponseEntity<?> checkoutOrder(@PathVariable String orderId, @RequestBody Order order) {
+    public ResponseEntity<?> checkoutOrder(@PathVariable String orderId) {
         UUID uuid = UUID.fromString(orderId);
         orderService.checkoutOrder(uuid);
-        return new ResponseEntity<Order>(order, HttpStatus.OK);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
-    @PostMapping("/cancel")
-    public ResponseEntity cancelOrder(@PathVariable String orderId) {
+    @PostMapping("/{orderId}/cancel")
+    public ResponseEntity<?> cancelOrder(@PathVariable String orderId) {
         UUID uuid = UUID.fromString(orderId);
         orderService.cancelOrder(uuid);
         return new ResponseEntity<>(null, HttpStatus.OK);

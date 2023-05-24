@@ -19,9 +19,7 @@ public class ReviewService {
         reviewRepo.save(review);
     }
 
-    public List<Review>getReviewsByItem(String itemName) {
-        return reviewRepo.findByItemName(itemName);
-    }
+
 
 
     public List<Review> getAllReviews(){

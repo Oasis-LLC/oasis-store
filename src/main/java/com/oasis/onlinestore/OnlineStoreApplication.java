@@ -38,6 +38,28 @@ public class OnlineStoreApplication implements CommandLineRunner {
 	@Transactional
 	@Override
 	public void run(String... args) throws Exception {
+		Item item1 = new Item(
+				"Stationary baby swings",
+				"Baby Swing for Infants, Electric Portable Baby Swing for Newborn, Bluetooth Touch Screen/Remote Control Timi",
+				"image",
+				"183837478",
+				12, 35.0
+		);
+		OrderLine ol = new OrderLine(item1);
+		Item item2 = new Item(
+				"Alienware Ultrawide Curved Gaming Monitor 38 Inch",
+				"144Hz Refresh Rate, 3840 x 1600 WQHD , IPS, NVIDIA G-SYNC Ultimate, 1ms Response Time, 2300R Curvature, VESA Display HDR 600, AW3821DW - White",
+				"someimage",
+				"183837478",
+				2, 45.0
+		);
+		OrderLine ol2 = new OrderLine(item2);
+		List<OrderLine>ols = new ArrayList<>();
+		ols.add(ol);
+		ols.add(ol2);
+		itemService.save(item1);
+		itemService.save(item2);
+
 		Order o1 = new Order();
 		//Order o2 = new Order();
 		List<Order> orders = new ArrayList<>();
@@ -50,6 +72,7 @@ public class OnlineStoreApplication implements CommandLineRunner {
 		userRepository.save(cust);
 		o1.setShippingAddress(testAddress);
 		cust.setOrders(orders);
+		o1.setLineItems(ols);
 		orderRepo.save(o1);
 
 		Order o2 = new Order();
@@ -57,8 +80,8 @@ public class OnlineStoreApplication implements CommandLineRunner {
 		o2.setStatus(Status.SHIPPED);
 		o2.setShippingAddress(testAddress);
 		cust.setOrders(orders);
+		//o2.setLineItems(ols);
 		orderRepo.save(o2);
-
 
 
 
@@ -71,7 +94,8 @@ public class OnlineStoreApplication implements CommandLineRunner {
 
 		}
 		testUserService();
-		testItemService();
+		//testItemService();
+
 		testCreditCardValidation();
 	}
 
@@ -86,15 +110,20 @@ public class OnlineStoreApplication implements CommandLineRunner {
 				"Baby Swing for Infants, Electric Portable Baby Swing for Newborn, Bluetooth Touch Screen/Remote Control Timi",
 				"image",
 				"183837478",
-				12
+				12, 35.0
 		);
+		OrderLine ol = new OrderLine(item1);
 		Item item2 = new Item(
 				"Alienware Ultrawide Curved Gaming Monitor 38 Inch",
 				"144Hz Refresh Rate, 3840 x 1600 WQHD , IPS, NVIDIA G-SYNC Ultimate, 1ms Response Time, 2300R Curvature, VESA Display HDR 600, AW3821DW - White",
 				"someimage",
 				"183837478",
-				2
+				2, 45.0
 		);
+		OrderLine ol2 = new OrderLine(item2);
+		List<OrderLine>ols = new ArrayList<>();
+		ols.add(ol);
+		ols.add(ol2);
 		itemService.save(item1);
 		itemService.save(item2);
 

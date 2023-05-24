@@ -44,7 +44,7 @@ public class OrderService {
 
     }
 
-    public Optional<LineItem> addLineItem(UUID orderId, UUID itemId) {
+    public Optional<OrderLine> addLineItem(UUID orderId, UUID itemId) {
 
         // Validate order, check status,
         Optional<Order> orderOpt = orderRepository.findById(orderId);
@@ -59,12 +59,12 @@ public class OrderService {
         }
 
         // Search item in order line
-        List<LineItem> found = order.getLineItems()
+        List<OrderLine> found = order.getLineItems()
                 .stream()
                 .filter(i -> i.getItem().getId().equals(itemId))
                 .toList();
 
-        LineItem lineItem;
+        OrderLine lineItem;
 
         if (found.size() > 0) {
             // Increase order line qty
@@ -72,7 +72,7 @@ public class OrderService {
             lineItem.increaseQuantity();
         } else {
             // create new line item
-             lineItem = new LineItem(itemOpt.get());
+             lineItem = new OrderLine(itemOpt.get());
             order.addLineItem(lineItem);
         }
         orderRepository.save(order);
@@ -95,24 +95,24 @@ public class OrderService {
         Optional<Order> orderOpt = orderRepository.findById(uuid);
         if(orderOpt.isPresent()) {
             Order order = orderOpt.get();
-            List<LineItem> lineItems = order.getLineItems()
+
+            List<OrderLine> lineItems = order.getLineItems()
                     .stream()
                     .collect(Collectors.toList());
-            if(order.getStatus() != Status.NEW) {
-                return;
-            }else if(order.getShippingAddress() != null && lineItems.size() > 0){
-                return;
-            }else{
-                order.setStatus(Status.PLACED);
-                orderRepository.save(order);
+            if(order.getStatus() == Status.NEW) {
+                if(order.getShippingAddress() != null && lineItems.size() > 0){
+                    order.setStatus(Status.PLACED);
+                    orderRepository.save(order);
+                }
             }
+
+
         }
 
 
 
     }
 
-    // Helper methods
 
     public void cancelOrder(UUID orderId) {
         Optional<Order> order = orderRepository.findById(orderId);
@@ -122,12 +122,16 @@ public class OrderService {
                 System.out.println("Cannot cancel the order as it is already placed.");
             } else if (existingOrder.getStatus() == Status.NEW) {
                 existingOrder.setStatus(Status.CANCELLED);
-                //orderRepository.save(existingOrder);
+                //orderRepository.delete(existingOrder);
                 System.out.println("Order has been successfully cancelled.");
             }
         } else {
             System.out.println("Order not found with ID: " + orderId);
         }
+
+    }
+
+    public void returnOrder(UUID id){
 
     }
 
