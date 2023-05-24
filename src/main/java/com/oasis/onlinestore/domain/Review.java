@@ -18,6 +18,8 @@ public class Review {
     private String date;
     private String description;
 
+    private String name;
+
     @ManyToOne (cascade = CascadeType.PERSIST)
     @JoinColumn(name = "customerId")
     private User buyer;
@@ -26,11 +28,12 @@ public class Review {
 
     }
 
-    public Review(int numberOfStars, String title,String date, String description) {
+    public Review(int numberOfStars, String title,String date, String description, User buyer) {
         this.numberOfStars = numberOfStars;
         this.title = title;
         this.date = date;
         this.description = description;
+        this.buyer = buyer;
     }
     public void add(Review review) {
         review.add(review);

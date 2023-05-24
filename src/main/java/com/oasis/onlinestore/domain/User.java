@@ -61,4 +61,8 @@ public class User {
         this.email = email;
         this.role = role;
     }
+
+//    public List<Item> getNumberOfOrders() {
+//        return orders.stream().map(Order::getItems).flatMap(List::stream).toList();
+//    }
 }

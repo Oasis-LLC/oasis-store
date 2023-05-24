@@ -4,6 +4,7 @@ import com.oasis.onlinestore.domain.*;
 import com.oasis.onlinestore.repository.OrderRepository;
 import com.oasis.onlinestore.repository.UserRepository;
 import com.oasis.onlinestore.service.ItemService;
+import com.oasis.onlinestore.service.ReviewService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -15,6 +16,8 @@ import java.util.List;
 
 @SpringBootApplication
 public class OnlineStoreApplication implements CommandLineRunner {
+	@Autowired
+	ReviewService reviewService;
 	@Autowired
 	UserRepository userRepository;
 
@@ -90,4 +93,14 @@ public class OnlineStoreApplication implements CommandLineRunner {
 		List<Item> foundAllItems = itemService.findAll();
 		System.out.println(foundAllItems);
 	}
+
+	private void testReviewService() {
+		Item item = new Item(
+				"Stationary baby swings",
+				"Baby Swing for Infants, Electric Portable Baby Swing for Newborn, Bluetooth Touch Screen/Remote Control Timi",
+				"image",
+				"183837478",
+				12
+		);
+}
 }
