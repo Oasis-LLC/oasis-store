@@ -33,14 +33,14 @@ public class OrderService {
     @Autowired
     PaymentServiceClient paymentServiceClient;
 
-    public List<Order> getAllOrders(){
+    public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
 
-    public Optional<Order> getOrderById(UUID orderID){
-        if(orderRepository.findById(orderID).isPresent()) {
+    public Optional<Order> getOrderById(UUID orderID) {
+        if (orderRepository.findById(orderID).isPresent()) {
             return orderRepository.findById(orderID);
-        }else{
+        } else {
             return null;
         }
 
@@ -64,10 +64,7 @@ public class OrderService {
         }
 
         // Search item in order line
-        List<OrderLine> found = order.getOrderLines()
-                .stream()
-                .filter(i -> i.getItem().getId().equals(itemId))
-                .toList();
+        List<OrderLine> found = order.getOrderLines().stream().filter(i -> i.getItem().getId().equals(itemId)).toList();
 
         OrderLine orderLine;
 
@@ -77,7 +74,7 @@ public class OrderService {
             orderLine.increaseQuantity();
         } else {
             // create new line item
-             orderLine = new OrderLine(itemOpt.get());
+            orderLine = new OrderLine(itemOpt.get());
             order.addLineItem(orderLine);
         }
         orderRepository.save(order);
@@ -102,10 +99,7 @@ public class OrderService {
         }
 
         // Search item in order line
-        List<OrderLine> found = order.getOrderLines()
-                .stream()
-                .filter(i -> i.getItem().getId().equals(itemId))
-                .toList();
+        List<OrderLine> found = order.getOrderLines().stream().filter(i -> i.getItem().getId().equals(itemId)).toList();
 
         if (found.size() == 0) {
             return new SimpleResponse(false, "No item found");
@@ -124,8 +118,6 @@ public class OrderService {
         orderRepository.save(order);
         return new SimpleResponse(true, "Successfully removed from order");
     }
-
-
 
 
     public void markOrderAsReturned(UUID orderId) {
@@ -165,14 +157,12 @@ public class OrderService {
     public void checkoutOrder(UUID uuid) {
 
         Optional<Order> orderOpt = orderRepository.findById(uuid);
-        if(orderOpt.isPresent()) {
+        if (orderOpt.isPresent()) {
             Order order = orderOpt.get();
 
-            List<OrderLine> lineItems = order.getOrderLines()
-                    .stream()
-                    .collect(Collectors.toList());
-            if(order.getStatus() == Status.NEW) {
-                if(order.getShippingAddress() != null && lineItems.size() > 0){
+            List<OrderLine> lineItems = order.getOrderLines().stream().collect(Collectors.toList());
+            if (order.getStatus() == Status.NEW) {
+                if (order.getShippingAddress() != null && lineItems.size() > 0) {
                     order.setStatus(Status.PLACED);
                     orderRepository.save(order);
                 }
@@ -180,7 +170,6 @@ public class OrderService {
 
 
         }
-
 
 
     }
