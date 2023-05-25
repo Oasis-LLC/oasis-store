@@ -40,7 +40,7 @@ public class WebSecurityConfig {
                 // disabling csrf since we won't use form login
                 .csrf().disable()
                 // giving permission to every request for /login endpoint
-                .authorizeHttpRequests().requestMatchers("/api/auth/login", "/api/auth/signup").permitAll()
+                .authorizeHttpRequests().requestMatchers("/api/auth/login", "/api/auth/signup", "/error").permitAll()
                 // for everything else, the user has to be authenticated
                 .anyRequest().authenticated()
                 // setting stateless session, because we choose to implement Rest API

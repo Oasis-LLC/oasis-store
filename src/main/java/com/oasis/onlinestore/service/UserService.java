@@ -152,7 +152,7 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        com.oasis.onlinestore.domain.User user = userRepository.findByEmail(username);
+        User user = userRepository.findByEmail(username);
 
         if (user != null) {
             return new org.springframework.security.core.userdetails.User(user.getEmail(),

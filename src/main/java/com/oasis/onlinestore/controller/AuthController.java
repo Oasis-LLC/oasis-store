@@ -1,6 +1,5 @@
 package com.oasis.onlinestore.controller;
 
-import com.oasis.onlinestore.domain.Role;
 import com.oasis.onlinestore.domain.User;
 import com.oasis.onlinestore.service.UserService;
 import com.oasis.onlinestore.service.security.JwtResponseModel;
@@ -42,7 +41,7 @@ public class AuthController {
         String origPassword = user.getPassword();
         // Encode password
         user.setPassword(passwordEncoder.encode(origPassword));
-        user.setRole(Role.CUSTOMER);
+
         User newUser = userService.save(user);
 
         try {

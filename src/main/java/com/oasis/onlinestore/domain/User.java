@@ -43,14 +43,7 @@ public class User {
     @Enumerated
     private Role role = Role.CUSTOMER;
 
-
-
     public User(){}
-
-
-
-
-
 
 
     public Order getCurrentOrder() {
