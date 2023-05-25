@@ -4,6 +4,8 @@ import com.oasis.onlinestore.domain.Item;
 import com.oasis.onlinestore.repository.ItemRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,8 +23,20 @@ public class ItemService {
         itemRepository.save(item);
     }
 
-    public List<Item> findAll() {
-        return itemRepository.findAll();
+    public Item update(UUID itemId, Item item) {
+        Optional<Item> found = itemRepository.findById(itemId);
+        if (found.isEmpty()) {
+            return null;
+        }
+
+        Item foundItem = found.get();
+        foundItem.update(item);
+
+        return itemRepository.save(foundItem);
+    }
+
+    public Page<Item> findAll(Pageable pageable) {
+        return itemRepository.findAll(pageable);
     }
     public List<Item> findNameLike(String name) {
         return itemRepository.findByNameContaining(name);

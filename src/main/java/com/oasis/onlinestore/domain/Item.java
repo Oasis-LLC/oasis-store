@@ -61,4 +61,13 @@ public class Item {
 
         return true;
     }
+
+    public void update(Item item) {
+        name = item.getName();
+        description = item.getDescription();
+        image = item.getImage();
+        barcode = item.getBarcode();
+        quantity = item.getQuantity();
+        price = item.getPrice();
+    }
 }
