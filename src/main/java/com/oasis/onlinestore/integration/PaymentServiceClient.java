@@ -15,6 +15,18 @@ public interface PaymentServiceClient {
     @RequestMapping(method = RequestMethod.GET, value = "/cards/user/{userId}")
     ResponseEntity<List<CreditCardResponse>> getCreditCards(@PathVariable String userId);
 
+    @RequestMapping(method = RequestMethod.GET, value = "/cards/{cardId}")
+    ResponseEntity<CreditCardResponse> getCardById(@PathVariable String cardId);
+
     @RequestMapping(method = RequestMethod.POST, value = "/cards/add")
-    ResponseEntity<?> addCard(CreditCardResponse card);
+    ResponseEntity<CreditCardResponse> addCard(CreditCardResponse card);
+
+
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/cards/update/{cardId}")
+    ResponseEntity<CreditCardResponse> updateCard(@PathVariable String cardId, CreditCardResponse card);
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/cards/delete/{cardId}")
+    ResponseEntity<CreditCardResponse> deleteCard(@PathVariable String cardId);
+
 }

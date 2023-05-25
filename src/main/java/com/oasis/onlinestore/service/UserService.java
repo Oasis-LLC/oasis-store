@@ -56,7 +56,7 @@ public class UserService implements UserDetailsService {
     }
 
     public List<Address> getShippingAddresses(){
-           User user = getCurrentCustomer();
+           User user = authUtil.getCurrentCustomer();
            List<Address> shippingAddresses = user.getAddresses().stream()
                    .filter(i -> i.getAddressType().equals(AddressType.SHIPPING))
                    .toList();
@@ -64,7 +64,7 @@ public class UserService implements UserDetailsService {
     }
 
     public void addAddress(Address address){
-        User user = getCurrentCustomer();
+        User user = authUtil.getCurrentCustomer();
         user.getAddresses().add(address);
         addressRepository.save(address);
         userRepository.save(user);
@@ -119,19 +119,33 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
 
     }
-    public void addCreditCard(CreditCardResponse card) {
+
+    // Cards
+
+    public ResponseEntity<CreditCardResponse> addCreditCard(CreditCardResponse card) {
         User user = authUtil.getCurrentCustomer();
         card.setUserId(user.getId());
-        Object obj = paymentServiceClient.addCard(card);
-
-        System.out.println(obj);
+        return paymentServiceClient.addCard(card);
     }
 
-    public List<CreditCardResponse> getCustomerCreditCard() {
+    public ResponseEntity<CreditCardResponse> getCardById(String cardId) {
+        User user = authUtil.getCurrentCustomer();
+        return paymentServiceClient.getCardById(cardId);
+    }
+
+    public List<CreditCardResponse> getAllCustomerCreditCards() {
         String userId = authUtil.getCurrentCustomer().getId().toString();
         ResponseEntity<List<CreditCardResponse>> obj = paymentServiceClient.getCreditCards(userId);
         System.out.println(obj.getBody());
         return obj.getBody();
+    }
+
+    public ResponseEntity<CreditCardResponse> updateCreditCard(String cardId, CreditCardResponse card) {
+        return paymentServiceClient.updateCard(cardId, card);
+    }
+
+    public ResponseEntity<?> deleteCreditCard(String cardId) {
+        return paymentServiceClient.deleteCard(cardId);
     }
 
     // Authentication ----
@@ -149,12 +163,6 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    private User getCurrentCustomer() {
-        // Get user based on JWT token
-        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-                .getPrincipal();
-        return userRepository.findByEmail(user.getUsername());
-    }
 
     private Set<SimpleGrantedAuthority> getAuthority(com.oasis.onlinestore.domain.User user) {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
