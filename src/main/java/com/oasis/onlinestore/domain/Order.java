@@ -1,5 +1,6 @@
 package com.oasis.onlinestore.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -13,10 +14,6 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private User customer;
-
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "addressId")
     private Address shippingAddress;
@@ -28,11 +25,7 @@ public class Order {
     private Status status;
 
     public Order() {
-    }
-
-    public Order(User customer, Status status) {
-        this.customer = customer;
-        this.status = status;
+        this.status = Status.NEW;
     }
 
     public boolean isEditable() {

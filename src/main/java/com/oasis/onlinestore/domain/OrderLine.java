@@ -14,7 +14,7 @@ public class OrderLine {
     private int quantity;
     private double discount;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne
     @JoinColumn(name = "itemId")
     private Item item;
 

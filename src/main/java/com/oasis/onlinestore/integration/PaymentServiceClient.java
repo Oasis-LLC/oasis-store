@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
 
-@FeignClient(value = "PaymentMicroservice", url = "http://localhost:9000/")
+@FeignClient(value = "PaymentMicroservice", url = "${payment-micro-url}")
 public interface PaymentServiceClient {
 
     @RequestMapping(method = RequestMethod.GET, value = "/cards/user/{userId}")

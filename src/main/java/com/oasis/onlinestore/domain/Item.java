@@ -3,6 +3,7 @@ package com.oasis.onlinestore.domain;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,8 @@ public class Item {
     private String description;
 
     @Lob
-    private String image;
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] image;
 
     private String barcode;
 
@@ -41,7 +43,7 @@ public class Item {
     private List<Item> items = new ArrayList<>(); // composite
 
     
-    public Item(String name, String description, String image, String barcode, int quantity, double price) {
+    public Item(String name, String description, byte[] image, String barcode, int quantity, double price) {
         this.name = name;
         this.description = description;
         this.image = image;

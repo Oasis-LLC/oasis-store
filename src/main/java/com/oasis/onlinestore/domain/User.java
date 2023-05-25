@@ -24,8 +24,6 @@ public class User {
 
     private String password;
 
-
-
     public User(String firstName, String lastName, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -35,10 +33,11 @@ public class User {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "customerId")
-    private List<Address> addresses;
+    private List<Address> addresses = new ArrayList<>();
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
-    private List<Order> orders;
+    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @JoinColumn(name = "customerId")
+    private List<Order> orders = new ArrayList<>();
 
     @Enumerated
     private Role role = Role.CUSTOMER;

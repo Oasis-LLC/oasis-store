@@ -37,8 +37,9 @@ public class ItemController {
     ResponseEntity<?> saveItem(@RequestPart Item item,
                                @RequestPart("image") MultipartFile file) {
         try {
-            String content = new String(file.getBytes(), StandardCharsets.UTF_8);
-            item.setImage(content);
+            if (file != null) {
+                item.setImage(file.getBytes());
+            }
             service.save(item);
         } catch (Exception e) {
             SimpleResponse res = new SimpleResponse(false, "Failed to create item");
@@ -58,8 +59,9 @@ public class ItemController {
         Item updateItem;
         try {
             UUID uuid = UUID.fromString(itemId);
-            String content = new String(file.getBytes(), StandardCharsets.UTF_8);
-            item.setImage(content);
+            if (file != null) {
+                item.setImage(file.getBytes());
+            }
 
             updateItem = service.update(uuid, item);
         } catch (Exception e) {

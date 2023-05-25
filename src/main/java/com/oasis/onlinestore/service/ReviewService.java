@@ -28,6 +28,7 @@ public class ReviewService {
     private UserRepository userRepository;
 
     public UUID submitReview(Review review, UUID orderId, UUID orderLineID) {
+        /*
         User user = getCurrentCustomer();
         Optional<Order> order = orderService.getOrderById(orderId);
         User buyer = null;
@@ -62,6 +63,7 @@ public class ReviewService {
 
             return savedReview.getId();
         }
+         */
 
         return null;
     }

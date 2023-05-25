@@ -10,6 +10,8 @@ import com.oasis.onlinestore.service.security.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +43,7 @@ public class OrderService {
         if(orderRepository.findById(orderID).isPresent()) {
             return orderRepository.findById(orderID);
         }else{
-            return null;
+            return Optional.empty();
         }
 
     }
@@ -154,10 +156,11 @@ public class OrderService {
 
         Order newOrder = customer.getCurrentOrder();
         if (newOrder == null) {
-            newOrder = new Order(customer, Status.NEW);
+            newOrder = new Order();
             customer.addOrder(newOrder);
             // save to userRepository
-            userRepository.save(customer);
+            User user = userRepository.save(customer);
+            newOrder = user.getCurrentOrder();
         }
         return Optional.of(newOrder);
     }
@@ -177,12 +180,7 @@ public class OrderService {
                     orderRepository.save(order);
                 }
             }
-
-
         }
-
-
-
     }
 
 
