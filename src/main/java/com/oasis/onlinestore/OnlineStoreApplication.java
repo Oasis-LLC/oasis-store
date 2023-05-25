@@ -19,27 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootApplication
-public class OnlineStoreApplication implements CommandLineRunner {
-	@Autowired
-	UserRepository userRepository;
-
-	@Autowired
-	OrderRepository orderRepo;
-	@Autowired
-	ItemService itemService;
-
-	@Autowired
-	CreditCardService creditCardService;
-
-	@Autowired
-	CreditCardRepository creditCardRepository;
-
-	public static void main(String[] args) {
-		SpringApplication.run(OnlineStoreApplication.class, args);
-	}
-
-	@Transactional
-	@Override
-
-	public void run(String... args) throws Exception {}
+public class OnlineStoreApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(OnlineStoreApplication.class, args);
+    }
 }

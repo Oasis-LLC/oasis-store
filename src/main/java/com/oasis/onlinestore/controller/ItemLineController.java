@@ -45,5 +45,11 @@ public class ItemLineController {
         }
         return lineItemService.updateLineItem(lineItem);
     }
-
 }
+
+// List of all routes in this controller:
+// GET /lineitems
+// POST /lineitems
+// GET /lineitems/lineitem/{id}
+// PUT /lineitems/lineitem/{id}
+// DELETE /lineitems/lineitem/{id}

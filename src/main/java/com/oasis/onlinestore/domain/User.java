@@ -77,3 +77,11 @@ public class User {
     }
 
 }
+
+// An example JSON body for a POST request to /api/auth/signup:
+// {
+//     "firstName": "John",
+//     "lastName": "Doe",
+//     "email": "john.doe@example",
+//     "password": "password"
+// }
