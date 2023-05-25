@@ -1,25 +1,39 @@
 package com.oasis.onlinestore.service;
 
+import com.oasis.onlinestore.domain.Address;
+import com.oasis.onlinestore.domain.AddressType;
 import com.oasis.onlinestore.domain.User;
+import com.oasis.onlinestore.repository.AddressRepository;
+import com.oasis.onlinestore.contract.CreditCardResponse;
+import com.oasis.onlinestore.integration.PaymentServiceClient;
 import com.oasis.onlinestore.repository.UserRepository;
+import com.oasis.onlinestore.service.security.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    PaymentServiceClient paymentServiceClient;
+
+    @Autowired
+    AuthUtil authUtil;
 
     public Page<User> findAll(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -41,6 +55,22 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email);
     }
 
+    public List<Address> getShippingAddresses(){
+           User user = authUtil.getCurrentCustomer();
+           List<Address> shippingAddresses = user.getAddresses().stream()
+                   .filter(i -> i.getAddressType().equals(AddressType.SHIPPING))
+                   .toList();
+           return shippingAddresses;
+    }
+
+    public void addAddress(Address address){
+        User user = authUtil.getCurrentCustomer();
+        user.getAddresses().add(address);
+        addressRepository.save(address);
+        userRepository.save(user);
+
+    }
+
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
@@ -52,7 +82,71 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+    private User getCurrentUser() {
+        // Get user based on JWT token
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return userRepository.findByEmail(user.getUsername());
+    }
 
+    public List<Address> getBillingAddresses() {
+        // Get the currently authenticated user
+        User user = getCurrentUser();
+
+        // Get the user's addresses
+        List<Address> addresses = user.getAddresses();
+
+        // Filter the addresses to get only the billing addresses
+        List<Address> billingAddresses = addresses.stream()
+                .filter(address -> address.getAddressType() == AddressType.BILLING)
+                .collect(Collectors.toList());
+
+        return billingAddresses;
+    }
+
+    public void addBillingAddress(Address address) {
+        // Get the currently authenticated user
+        User user = getCurrentUser();
+
+        // Set the address type as billing
+        address.setAddressType(AddressType.BILLING);
+
+        // Add the address to the user's addresses
+        user.getAddresses().add(address);
+
+        // Save the user to update the addresses
+        addressRepository.save(address);
+        userRepository.save(user);
+
+    }
+
+    // Cards
+
+    public ResponseEntity<CreditCardResponse> addCreditCard(CreditCardResponse card) {
+        User user = authUtil.getCurrentCustomer();
+        card.setUserId(user.getId());
+        return paymentServiceClient.addCard(card);
+    }
+
+    public ResponseEntity<CreditCardResponse> getCardById(String cardId) {
+        User user = authUtil.getCurrentCustomer();
+        return paymentServiceClient.getCardById(cardId);
+    }
+
+    public List<CreditCardResponse> getAllCustomerCreditCards() {
+        String userId = authUtil.getCurrentCustomer().getId().toString();
+        ResponseEntity<List<CreditCardResponse>> obj = paymentServiceClient.getCreditCards(userId);
+        System.out.println(obj.getBody());
+        return obj.getBody();
+    }
+
+    public ResponseEntity<CreditCardResponse> updateCreditCard(String cardId, CreditCardResponse card) {
+        return paymentServiceClient.updateCard(cardId, card);
+    }
+
+    public ResponseEntity<?> deleteCreditCard(String cardId) {
+        return paymentServiceClient.deleteCard(cardId);
+    }
 
     // Authentication ----
 
@@ -68,6 +162,7 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
     }
+
 
     private Set<SimpleGrantedAuthority> getAuthority(com.oasis.onlinestore.domain.User user) {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
