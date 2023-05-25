@@ -5,11 +5,13 @@ import com.oasis.onlinestore.domain.Order;
 import com.oasis.onlinestore.domain.OrderRequestBody;
 import com.oasis.onlinestore.contract.SimpleResponse;
 import com.oasis.onlinestore.service.OrderService;
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -78,6 +80,21 @@ public class OrderController {
         UUID uuid = UUID.fromString(orderId);
         orderService.markOrderAsReturned(uuid);
         return  new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @RolesAllowed("ROLE_ADMIN")
+    @PostMapping("/{orderId}/process")
+    public ResponseEntity<?> processOrder(@PathVariable String orderId) {
+        // TODO - Process Order
+        SimpleResponse res = orderService.processOrder(orderId);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @RolesAllowed("ROLE_ADMIN")
+    @PostMapping("/{orderId}/ship")
+    public ResponseEntity<?> shipOrder(@PathVariable String orderId) {
+        SimpleResponse res = orderService.shipOrder(orderId);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
 }

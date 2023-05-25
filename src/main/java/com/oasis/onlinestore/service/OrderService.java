@@ -1,11 +1,14 @@
 package com.oasis.onlinestore.service;
 
+import com.oasis.onlinestore.contract.CreditCardResponse;
 import com.oasis.onlinestore.contract.SimpleResponse;
 import com.oasis.onlinestore.domain.*;
+import com.oasis.onlinestore.integration.PaymentServiceClient;
 import com.oasis.onlinestore.repository.OrderRepository;
 import com.oasis.onlinestore.repository.UserRepository;
 import com.oasis.onlinestore.service.security.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 public class OrderService {
     @Autowired
     OrderRepository orderRepository;
+
     @Autowired
     UserRepository userRepository;
 
@@ -25,6 +29,9 @@ public class OrderService {
 
     @Autowired
     AuthUtil authUtil;
+
+    @Autowired
+    PaymentServiceClient paymentServiceClient;
 
     public List<Order> getAllOrders(){
         return orderRepository.findAll();
@@ -193,6 +200,69 @@ public class OrderService {
         } else {
             System.out.println("Order not found with ID: " + orderId);
         }
+    }
+
+    public SimpleResponse processOrder(String orderId) {
+        UUID uuid = UUID.fromString(orderId);
+        Optional<Order> orderOptional = orderRepository.findById(uuid);
+        if (orderOptional.isEmpty()) {
+            return new SimpleResponse(false, "Couldn't locate order");
+        }
+
+        Order order = orderOptional.get();
+
+        // Check status
+        if (order.getStatus() != Status.PLACED) {
+            return new SimpleResponse(false, "Order is not placed");
+        }
+
+        // Check credit card
+        if (getUserCreditCards().isEmpty()) {
+            return new SimpleResponse(false, "Payment method is not available");
+        }
+
+        // Change state to Proceed
+        order.setStatus(Status.PROCESSED);
+
+        // TODO - Email notification to customer
+
+        orderRepository.save(order);
+        return new SimpleResponse(true, "The order is being processed");
+    }
+
+    public SimpleResponse shipOrder(String orderId) {
+        UUID uuid = UUID.fromString(orderId);
+        Optional<Order> orderOptional = orderRepository.findById(uuid);
+        if (orderOptional.isEmpty()) {
+            return new SimpleResponse(false, "Couldn't locate order");
+        }
+
+        Order order = orderOptional.get();
+
+        // Check status
+        if (order.getStatus() != Status.PROCESSED) {
+            return new SimpleResponse(false, "Order is not placed");
+        }
+
+        // Check credit card
+        if (getUserCreditCards().isEmpty()) {
+            return new SimpleResponse(false, "Payment method is not available");
+        }
+
+        // Change state to Proceed
+        order.setStatus(Status.SHIPPED);
+
+        orderRepository.save(order);
+
+        // TODO - Email notification to customer
+
+        return new SimpleResponse(true, "The order is being processed");
+    }
+
+    private List<CreditCardResponse> getUserCreditCards() {
+        UUID id = authUtil.getCurrentCustomer().getId();
+        ResponseEntity<List<CreditCardResponse>> cc = paymentServiceClient.getCreditCards(id.toString());
+        return cc.getBody();
     }
 }
 

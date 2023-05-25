@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 @RestController
 @RequestMapping("/items")
@@ -29,18 +27,9 @@ public class ItemController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "3") int size
     ) {
-
         Pageable paging = PageRequest.of(page, size);
         Page<Item> foundItems = service.findAll(paging);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("items", foundItems);
-        response.put("currentPage", foundItems.getNumber());
-        response.put("totalItems", foundItems.getTotalElements());
-        response.put("totalPages", foundItems.getTotalPages());
-
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(foundItems, HttpStatus.OK);
     }
 
     @RolesAllowed("ROLE_ADMIN")
