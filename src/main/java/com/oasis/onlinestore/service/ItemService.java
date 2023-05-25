@@ -38,7 +38,6 @@ public class ItemService {
     public Page<Item> findAll(Pageable pageable) {
         return itemRepository.findAll(pageable);
     }
-
     public List<Item> findNameLike(String name) {
         return itemRepository.findByNameContaining(name);
     }

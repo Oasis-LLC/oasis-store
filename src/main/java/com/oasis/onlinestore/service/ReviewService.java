@@ -3,9 +3,11 @@ package com.oasis.onlinestore.service;
 import com.oasis.onlinestore.domain.*;
 import com.oasis.onlinestore.repository.ReviewRepository;
 import com.oasis.onlinestore.repository.UserRepository;
-import com.oasis.onlinestore.service.security.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import com.oasis.onlinestore.domain.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +27,8 @@ public class ReviewService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private AuthUtil authUtil;
-
     public UUID submitReview(Review review, UUID orderId, UUID orderLineID) {
-        User user = authUtil.getCurrentCustomer();
+        User user = getCurrentCustomer();
         Optional<Order> order = orderService.getOrderById(orderId);
         User buyer = null;
 
@@ -39,7 +38,10 @@ public class ReviewService {
                 System.out.println("You must be a buyer of the item to submit a review");
                 return null;
             }
-            OrderLine orderline = order.get().getOrderLines().stream().filter(ol -> ol.getId().equals(orderLineID)).findFirst().orElse(null);
+            OrderLine orderline = order.get().getOrderLines()
+                    .stream().filter(ol -> ol.getId().equals(orderLineID))
+                    .findFirst().
+                    orElse(null);
 
             if (orderline == null) {
                 System.out.println("Order line not found");
@@ -66,5 +68,13 @@ public class ReviewService {
 
     public List<Review> getAllReviews() {
         return reviewRepository.findAll();
+    }
+
+    // Helper methods
+    private User getCurrentCustomer() {
+        // Get user based on JWT token
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return userRepository.findByEmail(user.getUsername());
     }
 }

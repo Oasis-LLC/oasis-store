@@ -1,11 +1,11 @@
 package com.oasis.onlinestore.service;
 
-import com.oasis.onlinestore.contract.CreditCardResponse;
 import com.oasis.onlinestore.domain.Address;
 import com.oasis.onlinestore.domain.AddressType;
 import com.oasis.onlinestore.domain.User;
-import com.oasis.onlinestore.integration.PaymentServiceClient;
 import com.oasis.onlinestore.repository.AddressRepository;
+import com.oasis.onlinestore.contract.CreditCardResponse;
+import com.oasis.onlinestore.integration.PaymentServiceClient;
 import com.oasis.onlinestore.repository.UserRepository;
 import com.oasis.onlinestore.service.security.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +25,15 @@ import java.util.stream.Collectors;
 @Service
 public class UserService implements UserDetailsService {
     @Autowired
-    PaymentServiceClient paymentServiceClient;
-    @Autowired
-    AuthUtil authUtil;
-    @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private AddressRepository addressRepository;
+    @Autowired
+    PaymentServiceClient paymentServiceClient;
+
+    @Autowired
+    AuthUtil authUtil;
 
     public Page<User> findAll(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -53,15 +55,15 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email);
     }
 
-    public List<Address> getShippingAddresses() {
-        User user = authUtil.getCurrentCustomer();
-        List<Address> shippingAddresses = user.getAddresses().stream()
-                .filter(i -> i.getAddressType().equals(AddressType.SHIPPING))
-                .toList();
-        return shippingAddresses;
+    public List<Address> getShippingAddresses(){
+           User user = authUtil.getCurrentCustomer();
+           List<Address> shippingAddresses = user.getAddresses().stream()
+                   .filter(i -> i.getAddressType().equals(AddressType.SHIPPING))
+                   .toList();
+           return shippingAddresses;
     }
 
-    public void addAddress(Address address) {
+    public void addAddress(Address address){
         User user = authUtil.getCurrentCustomer();
         user.getAddresses().add(address);
         addressRepository.save(address);
