@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface ReviewRepo extends JpaRepository<Review, UUID> {
-
-   List<Review> findByItem(Item item);
+public interface ReviewRepository extends JpaRepository<Review, UUID> {
     List<Review> findAll();
 }
 

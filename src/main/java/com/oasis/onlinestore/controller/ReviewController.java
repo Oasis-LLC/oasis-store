@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/reviews")
@@ -18,25 +19,23 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
-
-    @PostMapping(consumes = {"application/json"})
-    public ResponseEntity<?> submitCustomerReview(@RequestBody Review review, Item item, User buyer) {
-        reviewService.submitReview(review, buyer, item);
-        return ResponseEntity.ok(review);
-    }
-
-
-  @GetMapping("/{itemName}")
-  public ResponseEntity<List<Review>>getReviewsByItem(@PathVariable Item itemName) {
-    List<Review> reviews = reviewService.getReviewsByItem(itemName);
-    return ResponseEntity.ok(reviews);
-  }
-
     @GetMapping
     public ResponseEntity<List<Review>> getAllReviews() {
         List<Review> reviews = reviewService.getAllReviews();
         return ResponseEntity.ok(reviews);
     }
+
+    @PostMapping("/orders/{orderId}/order-lines/{orderLineId}")
+    public ResponseEntity<?> submitCustomerReview(@RequestBody Review review, @PathVariable UUID orderId, @PathVariable UUID orderLineId) {
+        reviewService.submitReview(review, orderId, orderLineId);
+        return ResponseEntity.ok(review);
+    }
+
+//    @GetMapping("/{itemName}")
+//    public ResponseEntity<List<Review>> getReviewsByItem(@PathVariable Item itemName) {
+//        List<Review> reviews = reviewService.getReviewsByItem(itemName);
+//        return ResponseEntity.ok(reviews);
+//    }
 }
 
 
