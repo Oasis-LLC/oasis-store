@@ -2,7 +2,7 @@ package com.oasis.onlinestore.controller;
 
 import com.oasis.onlinestore.domain.OrderLine;
 import com.oasis.onlinestore.domain.Order;
-import com.oasis.onlinestore.domain.OrderRequestBody;
+import com.oasis.onlinestore.contract.OrderRequestBody;
 import com.oasis.onlinestore.contract.SimpleResponse;
 import com.oasis.onlinestore.service.OrderService;
 import jakarta.annotation.security.RolesAllowed;
@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
