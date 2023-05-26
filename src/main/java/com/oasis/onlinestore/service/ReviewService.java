@@ -3,11 +3,9 @@ package com.oasis.onlinestore.service;
 import com.oasis.onlinestore.domain.*;
 import com.oasis.onlinestore.repository.ReviewRepository;
 import com.oasis.onlinestore.repository.UserRepository;
+import com.oasis.onlinestore.service.security.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import com.oasis.onlinestore.domain.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,9 +25,11 @@ public class ReviewService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    AuthUtil authUtil;
+
     public UUID submitReview(Review review, UUID orderId, UUID orderLineID) {
-        /*
-        User user = getCurrentCustomer();
+        User user = authUtil.getCurrentCustomer();
         Optional<Order> order = orderService.getOrderById(orderId);
         User buyer = null;
 
@@ -63,20 +63,11 @@ public class ReviewService {
 
             return savedReview.getId();
         }
-         */
 
         return null;
     }
 
     public List<Review> getAllReviews() {
         return reviewRepository.findAll();
-    }
-
-    // Helper methods
-    private User getCurrentCustomer() {
-        // Get user based on JWT token
-        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-                .getPrincipal();
-        return userRepository.findByEmail(user.getUsername());
     }
 }

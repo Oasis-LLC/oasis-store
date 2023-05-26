@@ -14,6 +14,12 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customerId")
+    private User customer;
+
+
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "addressId")
     private Address shippingAddress;
