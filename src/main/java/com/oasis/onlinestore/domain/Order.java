@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-@Entity(name = "Purchase")
+@Entity(name = "AppOrder")
 @Data
 public class Order {
     @Id

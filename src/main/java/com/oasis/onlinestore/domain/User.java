@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Entity(name = "UserEntity")
+@Entity(name = "AppUser")
 @Data
 public class User {
 

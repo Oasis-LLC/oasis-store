@@ -1,4 +1,4 @@
-package com.oasis.onlinestore.domain;
+package com.oasis.onlinestore.contract;
 
 import lombok.Data;
 
