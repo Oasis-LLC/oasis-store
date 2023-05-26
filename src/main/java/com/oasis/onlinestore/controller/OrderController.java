@@ -1,9 +1,9 @@
 package com.oasis.onlinestore.controller;
 
-import com.oasis.onlinestore.domain.OrderLine;
-import com.oasis.onlinestore.domain.Order;
 import com.oasis.onlinestore.contract.OrderRequestBody;
 import com.oasis.onlinestore.contract.SimpleResponse;
+import com.oasis.onlinestore.domain.Order;
+import com.oasis.onlinestore.domain.OrderLine;
 import com.oasis.onlinestore.service.OrderService;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,17 +61,17 @@ public class OrderController {
         return new ResponseEntity<SimpleResponse>(res, HttpStatus.OK);
     }
 
-    @PostMapping("/{orderId}/line/checkout")
-    public ResponseEntity<?> checkoutOrder(@PathVariable String orderId) {
-        UUID uuid = UUID.fromString(orderId);
-        orderService.checkoutOrder(uuid);
-        return new ResponseEntity<>(null, HttpStatus.OK);
     @PostMapping("/set-address")
     public ResponseEntity<SimpleResponse> setShippingAddressToOrder(@RequestBody OrderRequestBody body) {
         UUID itemUuid = UUID.fromString(body.getItemId());
         SimpleResponse res = orderService.setShippingAddressToCurrentOrder(itemUuid);
         return new ResponseEntity<SimpleResponse>(res, HttpStatus.OK);
     }
+
+    @PostMapping("/checkout")
+    public ResponseEntity<?> checkoutOrder() {
+        SimpleResponse res = orderService.checkoutOrder();
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<?> cancelOrder(@PathVariable String orderId) {

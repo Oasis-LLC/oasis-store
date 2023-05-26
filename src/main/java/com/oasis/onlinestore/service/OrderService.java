@@ -7,11 +7,10 @@ import com.oasis.onlinestore.integration.PaymentServiceClient;
 import com.oasis.onlinestore.repository.OrderRepository;
 import com.oasis.onlinestore.repository.UserRepository;
 import com.oasis.onlinestore.service.security.AuthUtil;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -184,22 +183,34 @@ public class OrderService {
         return Optional.of(newOrder);
     }
 
-    public void checkoutOrder(UUID uuid) {
+    public SimpleResponse checkoutOrder() {
+        Optional<Order> orderOpt = getCurrentOrder();
 
-        Optional<Order> orderOpt = orderRepository.findById(uuid);
-        if(orderOpt.isPresent()) {
-            Order order = orderOpt.get();
-
-            List<OrderLine> lineItems = order.getOrderLines()
-                    .stream()
-                    .collect(Collectors.toList());
-            if(order.getStatus() == Status.NEW) {
-                if(order.getShippingAddress() != null && lineItems.size() > 0){
-                    order.setStatus(Status.PLACED);
-                    orderRepository.save(order);
-                }
-            }
+        if (orderOpt.isEmpty()) {
+            return new SimpleResponse(false, "Fail to locate this order");
         }
+
+        Order order = orderOpt.get();
+        List<OrderLine> lineItems = order.getOrderLines();
+
+        // Check credit card
+        if (getUserCreditCards().size() == 0) {
+            return new SimpleResponse(false, "There is no credit card available");
+        }
+
+        // Check order line
+        if (lineItems.size() == 0) {
+            return new SimpleResponse(false, "There is no item in your order");
+        }
+
+        // Check Status
+        if (order.getStatus() != Status.NEW) {
+            return new SimpleResponse(false, "Order is already checked out");
+        }
+
+        order.setStatus(Status.PLACED);
+        orderRepository.save(order);
+        return new SimpleResponse(true, "Successfully placed your order");
     }
 
 
