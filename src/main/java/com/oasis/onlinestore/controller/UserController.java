@@ -45,9 +45,9 @@ public class UserController {
     }
 
 
-    @DeleteMapping("/{userId}/billing-address")
-    public SimpleResponse deleteBillingAddress(@PathVariable("userId") UUID userId) {
-        boolean deleted = userService.deleteBillingAddress(userId);
+@DeleteMapping("/{addressId}/billing-address")
+public SimpleResponse deleteBillingAddress(@PathVariable("addressId") UUID addressId) {
+    boolean deleted = userService.deleteBillingAddress(addressId);
 
         if (deleted) {
             return new SimpleResponse(true, "Successfully deleted billing address", null);
