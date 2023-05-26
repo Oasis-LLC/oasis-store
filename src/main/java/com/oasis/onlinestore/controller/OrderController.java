@@ -76,8 +76,8 @@ public class OrderController {
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<?> cancelOrder(@PathVariable String orderId) {
         UUID uuid = UUID.fromString(orderId);
-        orderService.cancelOrder(uuid );
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        SimpleResponse res = orderService.cancelOrder(uuid );
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
     @PostMapping("/{orderId}/returned")
     public ResponseEntity<SimpleResponse> markOrderAsReturned(@PathVariable String orderId) {

@@ -237,20 +237,22 @@ public class OrderService {
     }
 
 
-    public void cancelOrder(UUID orderId) {
+    public SimpleResponse cancelOrder(UUID orderId) {
         Optional<Order> order = orderRepository.findById(orderId);
         if (order.isPresent()) {
             Order existingOrder = order.get();
             if (existingOrder.getStatus() == Status.PLACED) {
-                System.out.println("Cannot cancel the order as it is already placed.");
-            } else if (existingOrder.getStatus() == Status.NEW) {
+                return new SimpleResponse(false,"Cannot cancel the order as it is already placed.");
+            } else if (existingOrder.getStatus() == Status.SHIPPED) {
                 existingOrder.setStatus(Status.CANCELLED);
-                //orderRepository.save(existingOrder);
-                System.out.println("Order has been successfully cancelled.");
+                orderRepository.save(existingOrder);
+                return new SimpleResponse(true,"Order has been successfully cancelled.");
             }
+
         } else {
-            System.out.println("Order not found with ID: " + orderId);
+            return new SimpleResponse(false,"Order not found with ID: " + orderId);
         }
+        return null;
     }
 
     public SimpleResponse processOrder(String orderId) {

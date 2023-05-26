@@ -67,13 +67,13 @@ public class UserService implements UserDetailsService {
            return shippingAddresses;
     }
 
-    public void addAddress(Address address){
+    public SimpleResponse addAddress(Address address){
         User user = authUtil.getCurrentCustomer();
         address.setAddressType(AddressType.SHIPPING);
         user.getAddresses().add(address);
         addressRepository.save(address);
         userRepository.save(user);
-
+        return new SimpleResponse(true, "Shipping Address is added", address);
     }
 
     public boolean existsByEmail(String email) {
