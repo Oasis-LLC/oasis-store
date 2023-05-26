@@ -1,5 +1,6 @@
 package com.oasis.onlinestore.service;
 
+import com.oasis.onlinestore.contract.SimpleResponse;
 import com.oasis.onlinestore.domain.Address;
 import com.oasis.onlinestore.domain.AddressType;
 import com.oasis.onlinestore.domain.User;
@@ -92,6 +93,8 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(user.getUsername());
     }
 
+    //Billing Address
+
     public List<Address> getBillingAddresses() {
         // Get the currently authenticated user
         User user = getCurrentUser();
@@ -107,20 +110,58 @@ public class UserService implements UserDetailsService {
         return billingAddresses;
     }
 
-    public void addBillingAddress(Address address) {
-        // Get the currently authenticated user
+    public SimpleResponse addBillingAddress(Address address) {
+
         User user = getCurrentUser();
+        boolean hasBillingAddress = user.getAddresses().stream()
+                .anyMatch(a -> a.getAddressType() == AddressType.BILLING);
+        if(hasBillingAddress){
 
-        // Set the address type as billing
+            return new SimpleResponse(false, "User has a Billing address");
+        }
+
         address.setAddressType(AddressType.BILLING);
-
-        // Add the address to the user's addresses
         user.getAddresses().add(address);
-
-        // Save the user to update the addresses
         addressRepository.save(address);
         userRepository.save(user);
+        return new SimpleResponse(true, "Successfully add billing address", user);
 
+    }
+
+    //update
+    public SimpleResponse updateBillingAddress(UUID userId, Address newBillingAddress) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        optionalUser.ifPresent(user -> {
+            List<Address> addresses = user.getAddresses();
+            for (Address address : addresses) {
+                if (address.getAddressType() == AddressType.BILLING) {
+                    address.setStreet(newBillingAddress.getStreet());
+                    address.setCity(newBillingAddress.getCity());
+                    address.setState(newBillingAddress.getState());
+                    addressRepository.save(address);
+                }
+            }
+            userRepository.save(user);
+        });
+
+        if (optionalUser.isEmpty()) {
+            return new SimpleResponse(false, "Failed to update");
+        }
+        return new SimpleResponse(true, "Successfully update address", optionalUser.get());
+    }
+    public boolean deleteBillingAddress(UUID userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            List<Address> addresses = user.getAddresses();
+            // Find the billing address and remove it
+            addresses.removeIf(address -> address.getAddressType() == AddressType.BILLING);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
     }
 
     // Cards

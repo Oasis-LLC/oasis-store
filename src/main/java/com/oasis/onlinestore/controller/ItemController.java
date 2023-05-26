@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 @RestController
 @RequestMapping("/items")
@@ -31,6 +32,12 @@ public class ItemController {
         Page<Item> foundItems = service.findAll(paging);
         return new ResponseEntity<>(foundItems, HttpStatus.OK);
     }
+
+    @GetMapping("/find")
+    public List<Item> findNameLike(@RequestParam("name") String name) {
+        return service.findNameLike(name);
+    }
+
 
     @RolesAllowed("ROLE_ADMIN")
     @PostMapping(consumes = {"multipart/form-data"})

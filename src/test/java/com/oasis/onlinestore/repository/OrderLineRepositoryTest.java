@@ -1,8 +1,6 @@
 package com.oasis.onlinestore.repository;
 
-public class OrderLineRepositoryTest {
-}
-import com.oasis.onlinestore.domain.Order;
+
 import com.oasis.onlinestore.domain.OrderLine;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,27 +9,21 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Optional;
-import java.util.UUID;
+@RunWith(SpringRunner.class)
+@DataJpaTest
+public class OrderLineRepositoryTest {
+    @Autowired
+    TestEntityManager testEntityManager;
+    @Autowired
+    OrderLineRepo orderLineRepo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+    @Test
+    public void findById() {
+        OrderLine orderLine = new OrderLine();
+        testEntityManager.persist(orderLine);
+        testEntityManager.flush();
 
-//@RunWith(SpringRunner.class)
-//@DataJpaTest
-//public class OrderLineRepositoryTest {
-//    @Autowired
-//    TestEntityManager testEntityManager;
-//    @Autowired
-//    OrderLineRepo orderLineRepo;
-//    @Test
-//    public void findById(){
-////        OrderLine orderLine = new OrderLine("iPhone");
-////        testEntityManager.persist(orderLine);
-//        testEntityManager.flush();
-//
-//
-//
-//    }
+
+    }
+}
 

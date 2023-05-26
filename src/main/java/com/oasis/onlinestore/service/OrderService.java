@@ -36,7 +36,8 @@ public class OrderService {
     PaymentServiceClient paymentServiceClient;
 
     public List<Order> getAllOrders(){
-        return orderRepository.findAll();
+        User user = authUtil.getCurrentCustomer();
+        return user.getOrders();
     }
 
     public Optional<Order> getOrderById(UUID orderID){
@@ -130,7 +131,7 @@ public class OrderService {
 
 
 
-    public void markOrderAsReturned(UUID orderId) {
+    public SimpleResponse markOrderAsReturned(UUID orderId) {
         // Fetch the order by ID from the database or any other data source
         Optional<Order> orderOptional = orderRepository.findById(orderId);
         if (orderOptional.isPresent()) {
@@ -142,7 +143,7 @@ public class OrderService {
                 throw new IllegalStateException("Order must be delivered before it can be marked as returned");
             }
         }
-
+        return new SimpleResponse(true, "Successfully returned");
     }
 
     // Helper methods

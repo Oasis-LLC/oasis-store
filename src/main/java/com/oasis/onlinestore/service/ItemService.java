@@ -46,7 +46,7 @@ public class ItemService {
         return itemRepository.findById(id);
     }
 
-    public void setImage(String uuid, String imageByte) {
+    public void setImage(String uuid, String imageByte) {}
 
-    }
+
 }

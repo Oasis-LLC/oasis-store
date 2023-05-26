@@ -75,11 +75,14 @@ public class OrderController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
     @PostMapping("/{orderId}/returned")
-    public ResponseEntity<?> markOrderAsReturned(@PathVariable String orderId) {
+    public ResponseEntity<SimpleResponse> markOrderAsReturned(@PathVariable String orderId) {
 
         UUID uuid = UUID.fromString(orderId);
         orderService.markOrderAsReturned(uuid);
-        return  new ResponseEntity<>(null, HttpStatus.OK);
+        SimpleResponse res = orderService.markOrderAsReturned(uuid);
+        return new ResponseEntity<SimpleResponse>(res, HttpStatus.OK);
+
+
     }
 
     @RolesAllowed("ROLE_ADMIN")
