@@ -128,8 +128,26 @@ public class OrderService {
         return new SimpleResponse(true, "Successfully removed from order");
     }
 
+    public SimpleResponse setShippingAddressToCurrentOrder(UUID uuid) {
+        Optional<Order> orderOpt = getCurrentOrder();
+        if (orderOpt.isEmpty()) {
+            return new SimpleResponse(false, "Could not locate order");
+        }
+        Order order = orderOpt.get();
+        List<Address> addresses = authUtil.getCurrentCustomer().getAddresses();
+        List<Address> founds = addresses.stream().filter(a ->
+                a.getId().equals(uuid)
+                && a.getAddressType() == AddressType.SHIPPING).toList();
 
+        if (founds.size() == 0) {
+            return new SimpleResponse(false, "Address is not correct customer shipping address");
+        }
+        Address address = founds.get(0);
+        order.setShippingAddress(address);
 
+        orderRepository.save(order);
+        return new SimpleResponse(true, "Successfully set shipping address");
+    }
 
     public SimpleResponse markOrderAsReturned(UUID orderId) {
         // Fetch the order by ID from the database or any other data source

@@ -66,6 +66,12 @@ public class OrderController {
         UUID uuid = UUID.fromString(orderId);
         orderService.checkoutOrder(uuid);
         return new ResponseEntity<>(null, HttpStatus.OK);
+    @PostMapping("/set-address")
+    public ResponseEntity<SimpleResponse> setShippingAddressToOrder(@RequestBody OrderRequestBody body) {
+        UUID itemUuid = UUID.fromString(body.getItemId());
+        SimpleResponse res = orderService.setShippingAddressToCurrentOrder(itemUuid);
+        return new ResponseEntity<SimpleResponse>(res, HttpStatus.OK);
+    }
     }
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<?> cancelOrder(@PathVariable String orderId) {
