@@ -76,24 +76,19 @@ public class OrderController {
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<?> cancelOrder(@PathVariable String orderId) {
         UUID uuid = UUID.fromString(orderId);
-        orderService.cancelOrder(uuid );
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        SimpleResponse res = orderService.cancelOrder(uuid );
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
     @PostMapping("/{orderId}/returned")
     public ResponseEntity<SimpleResponse> markOrderAsReturned(@PathVariable String orderId) {
-
         UUID uuid = UUID.fromString(orderId);
-        orderService.markOrderAsReturned(uuid);
         SimpleResponse res = orderService.markOrderAsReturned(uuid);
         return new ResponseEntity<SimpleResponse>(res, HttpStatus.OK);
-
-
     }
 
     @RolesAllowed("ROLE_ADMIN")
     @PostMapping("/{orderId}/process")
     public ResponseEntity<?> processOrder(@PathVariable String orderId) {
-        // TODO - Process Order
         SimpleResponse res = orderService.processOrder(orderId);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }

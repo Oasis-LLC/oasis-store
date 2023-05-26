@@ -30,12 +30,6 @@ public class ReviewController {
         reviewService.submitReview(review, orderId, orderLineId);
         return ResponseEntity.ok(review);
     }
-
-//    @GetMapping("/{itemName}")
-//    public ResponseEntity<List<Review>> getReviewsByItem(@PathVariable Item itemName) {
-//        List<Review> reviews = reviewService.getReviewsByItem(itemName);
-//        return ResponseEntity.ok(reviews);
-//    }
 }
 
 

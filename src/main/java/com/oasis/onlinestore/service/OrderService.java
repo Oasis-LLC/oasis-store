@@ -73,11 +73,26 @@ public class OrderService {
 
         OrderLine orderLine;
 
+        Item item = itemOpt.get();
+
+
+
         if (found.size() > 0) {
-            // Increase order line qty
             orderLine = found.get(0);
+
+            // Check stock
+            if (item.getQuantity() < orderLine.getQuantity() + 1) {
+                return new SimpleResponse(false, "Item is out of stock");
+            }
+
+            // Increase order line qty
             orderLine.increaseQuantity();
+
         } else {
+            // Check stock
+            if (item.getQuantity() == 0) {
+                return new SimpleResponse(false, "Item is out of stock");
+            }
             // create new line item
              orderLine = new OrderLine(itemOpt.get());
             order.addLineItem(orderLine);
@@ -208,26 +223,36 @@ public class OrderService {
             return new SimpleResponse(false, "Order is already checked out");
         }
 
+        // Decrease item stock
+        order.getOrderLines().forEach(line -> {
+            Item item = line.getItem();
+            int qty = item.getQuantity() - line.getQuantity();
+            item.setQuantity(qty);
+            itemService.save(item);
+        });
+
         order.setStatus(Status.PLACED);
         Order save = orderRepository.save(order);
         return new SimpleResponse(true, "Successfully placed your order", save);
     }
 
 
-    public void cancelOrder(UUID orderId) {
+    public SimpleResponse cancelOrder(UUID orderId) {
         Optional<Order> order = orderRepository.findById(orderId);
         if (order.isPresent()) {
             Order existingOrder = order.get();
             if (existingOrder.getStatus() == Status.PLACED) {
-                System.out.println("Cannot cancel the order as it is already placed.");
-            } else if (existingOrder.getStatus() == Status.NEW) {
+                return new SimpleResponse(false,"Cannot cancel the order as it is already placed.");
+            } else if (existingOrder.getStatus() == Status.SHIPPED) {
                 existingOrder.setStatus(Status.CANCELLED);
-                //orderRepository.save(existingOrder);
-                System.out.println("Order has been successfully cancelled.");
+                orderRepository.save(existingOrder);
+                return new SimpleResponse(true,"Order has been successfully cancelled.");
             }
+
         } else {
-            System.out.println("Order not found with ID: " + orderId);
+            return new SimpleResponse(false,"Order not found with ID: " + orderId);
         }
+        return null;
     }
 
     public SimpleResponse processOrder(String orderId) {

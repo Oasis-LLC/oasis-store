@@ -3,17 +3,13 @@ package com.oasis.onlinestore.controller;
 import com.oasis.onlinestore.contract.CreditCardResponse;
 import com.oasis.onlinestore.contract.SimpleResponse;
 import com.oasis.onlinestore.domain.Address;
-import com.oasis.onlinestore.domain.User;
 import com.oasis.onlinestore.service.UserService;
-import org.modelmapper.internal.bytebuddy.implementation.bytecode.ShiftRight;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -39,6 +35,7 @@ public class UserController {
         SimpleResponse res = userService.addBillingAddress(address);
         return new ResponseEntity<SimpleResponse>(res, HttpStatus.OK);
     }
+
     // update billing address
     @PutMapping("/{userId}/billing-address")
     public ResponseEntity<?> updateBillingAddress(@PathVariable("userId") UUID userId, @RequestBody Address newBillingAddress) {
@@ -48,16 +45,16 @@ public class UserController {
     }
 
 
-@DeleteMapping("/{userId}/billing-address")
-public SimpleResponse deleteBillingAddress(@PathVariable("userId") UUID userId) {
-    boolean deleted = userService.deleteBillingAddress(userId);
+    @DeleteMapping("/{userId}/billing-address")
+    public SimpleResponse deleteBillingAddress(@PathVariable("userId") UUID userId) {
+        boolean deleted = userService.deleteBillingAddress(userId);
 
-    if (deleted) {
-        return new SimpleResponse(true, "Successfully deleted billing address", null);
-    } else {
-        return new SimpleResponse(false, "Billing address not found", null);
+        if (deleted) {
+            return new SimpleResponse(true, "Successfully deleted billing address", null);
+        } else {
+            return new SimpleResponse(false, "Billing address not found", null);
+        }
     }
-}
 
     @GetMapping("/shipping-addresses")
     public ResponseEntity<List<Address>> getShippingAddresses() {
@@ -67,8 +64,8 @@ public SimpleResponse deleteBillingAddress(@PathVariable("userId") UUID userId) 
 
     @PostMapping("/shipping-addresses")
     public ResponseEntity<?> addShippingAddress(@RequestBody Address address) {
-        userService.addAddress(address);
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        SimpleResponse res = userService.addAddress(address);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping("/cards")
