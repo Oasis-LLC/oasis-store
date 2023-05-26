@@ -111,13 +111,12 @@ public class UserService implements UserDetailsService {
     }
 
     public SimpleResponse addBillingAddress(Address address) {
-
         User user = getCurrentUser();
-        boolean hasBillingAddress = user.getAddresses().stream()
-                .anyMatch(a -> a.getAddressType() == AddressType.BILLING);
-        if(hasBillingAddress){
-
-            return new SimpleResponse(false, "User has a Billing address");
+        List<Address> addresses = user.getAddresses();
+        for(Address a : addresses) {
+            if (a.getAddressType().equals(AddressType.BILLING)) {
+                return new SimpleResponse(false, "User has a Billing address");
+            }
         }
 
         address.setAddressType(AddressType.BILLING);
@@ -150,14 +149,14 @@ public class UserService implements UserDetailsService {
         }
         return new SimpleResponse(true, "Successfully update address", optionalUser.get());
     }
-    public boolean deleteBillingAddress(UUID userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
+    public boolean deleteBillingAddress(UUID addressId) {
+        User user = authUtil.getCurrentCustomer();
 
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
+        if (user != null) {
             List<Address> addresses = user.getAddresses();
             // Find the billing address and remove it
             addresses.removeIf(address -> address.getAddressType() == AddressType.BILLING);
+            addressRepository.deleteById(addressId);
             userRepository.save(user);
             return true;
         }

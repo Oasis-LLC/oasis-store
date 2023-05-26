@@ -36,15 +36,12 @@ public class UserController {
     @PostMapping("/billing-address")
     public ResponseEntity<?> addBillingAddress(@RequestBody Address address) {
         // Add the billing address to the user
-        userService.addBillingAddress(address);
         SimpleResponse res = userService.addBillingAddress(address);
         return new ResponseEntity<SimpleResponse>(res, HttpStatus.OK);
     }
     // update billing address
     @PutMapping("/{userId}/billing-address")
-    public ResponseEntity<?> updateBillingAddress(
-            @PathVariable("userId") UUID userId,
-            @RequestBody Address newBillingAddress) {
+    public ResponseEntity<?> updateBillingAddress(@PathVariable("userId") UUID userId, @RequestBody Address newBillingAddress) {
 
         SimpleResponse res = userService.updateBillingAddress(userId, newBillingAddress);
         return new ResponseEntity<>(res, HttpStatus.OK);
