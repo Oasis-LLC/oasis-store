@@ -73,11 +73,26 @@ public class OrderService {
 
         OrderLine orderLine;
 
+        Item item = itemOpt.get();
+
+
+
         if (found.size() > 0) {
-            // Increase order line qty
             orderLine = found.get(0);
+
+            // Check stock
+            if (item.getQuantity() < orderLine.getQuantity() + 1) {
+                return new SimpleResponse(false, "Item is out of stock");
+            }
+
+            // Increase order line qty
             orderLine.increaseQuantity();
+
         } else {
+            // Check stock
+            if (item.getQuantity() == 0) {
+                return new SimpleResponse(false, "Item is out of stock");
+            }
             // create new line item
              orderLine = new OrderLine(itemOpt.get());
             order.addLineItem(orderLine);
@@ -207,6 +222,14 @@ public class OrderService {
         if (order.getStatus() != Status.NEW) {
             return new SimpleResponse(false, "Order is already checked out");
         }
+
+        // Decrease item stock
+        order.getOrderLines().forEach(line -> {
+            Item item = line.getItem();
+            int qty = item.getQuantity() - line.getQuantity();
+            item.setQuantity(qty);
+            itemService.save(item);
+        });
 
         order.setStatus(Status.PLACED);
         Order save = orderRepository.save(order);
