@@ -69,6 +69,7 @@ public class UserService implements UserDetailsService {
 
     public void addAddress(Address address){
         User user = authUtil.getCurrentCustomer();
+        address.setAddressType(AddressType.SHIPPING);
         user.getAddresses().add(address);
         addressRepository.save(address);
         userRepository.save(user);
