@@ -209,8 +209,8 @@ public class OrderService {
         }
 
         order.setStatus(Status.PLACED);
-        orderRepository.save(order);
-        return new SimpleResponse(true, "Successfully placed your order");
+        Order save = orderRepository.save(order);
+        return new SimpleResponse(true, "Successfully placed your order", save);
     }
 
 
